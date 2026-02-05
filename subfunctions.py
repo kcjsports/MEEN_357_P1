@@ -1,6 +1,6 @@
 import numpy as np
 
-#what I think the dictionary if defined. IDK though.
+#what I think the dictionary is supposed to be. IDK though.
 Marvin = {
   #contains dictionarys about our rover
     "rover" : {
@@ -37,7 +37,7 @@ def taudc_motor(omega:np.ndarray, motor:dict):
     raise Exception("Inputs are not the right data type.")
   
   for i in range(len(omega)-1):
-   if omega[i] 
+    if omega[i] > 
 
 
   return tau
