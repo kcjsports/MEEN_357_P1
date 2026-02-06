@@ -32,14 +32,12 @@ def taudc_motor(omega:np.ndarray, motor:dict):
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
 #validates that the inputs are the correct data type
-  if not (isinstance(omega, np.ndarray) or isinstance(motor, dict)):
+  if not isinstance(omega, np.ndarray) or not isinstance(motor, dict):
     raise Exception("Inputs are not the right data type.")
-
 
 #calculates the value of the tau
   tau = np.zeros(omega.size)
   for i in range(len(omega)):
-    print(i)
     if omega[i] > motor["speed_noload"]: # for case where omega > omega_nl
       tau[i] = 0
     elif omega[i] < 0: # for case where omega < 0
@@ -66,4 +64,3 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
   return Fnet
-
