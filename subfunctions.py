@@ -2,7 +2,7 @@ import numpy as np
 
 #what I think the dictionary is supposed to be. IDK though.
 Marvin = {
-  #contains dictionarys about our rover
+  #contains dictionarys about the rover
     "rover" : {
         #contains definition about the rovers wheels inculuding details of what drives them
         "wheel_assembly" : {
@@ -31,14 +31,21 @@ def taudc_motor(omega:np.ndarray, motor:dict):
 
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
-#checks
-
+#validates that the inputs are the correct data type
   if not (isinstance(omega, np.ndarray) or isinstance(motor, dict)):
     raise Exception("Inputs are not the right data type.")
-  
-  for i in range(len(omega)-1):
-    if omega[i] > 
 
+
+#calculates the value of the tau
+  tau = np.zeros(omega.size)
+  for i in range(len(omega)):
+    print(i)
+    if omega[i] > motor["speed_noload"]: # for case where omega > omega_nl
+      tau[i] = 0
+    elif omega[i] < 0: # for case where omega < 0
+      tau[i] = motor["torque_stall"] 
+    else: # for case where 0 <= omega < omega_nl
+      tau[i] = motor['torque_stall'] - ((motor['torque_stall']-motor['torque_noload'])/motor['speed_noload'])*omega[i]
 
   return tau
 
