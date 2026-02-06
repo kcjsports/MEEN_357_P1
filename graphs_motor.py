@@ -13,9 +13,12 @@ p = np.ndarray(n)
 for i in  range(len(o)):
   p[i] = t[i]*o[i]
 
+
+plt.rcParams["font.family"] = "serif"
 fig, ax = plt.subplots(3,1)
-ax[0].plot(t, o)
-ax[1].plot(t, p)
-ax[2].plot(o, p)
+ax[0].plot(t, o); ax[0].set_title("Motor - Torque vs. Speed")
+ax[1].plot(t, p); ax[1].set_title("Motor - Torque vs. Power")
+ax[2].plot(o, p); ax[2].set_title("Motor - Speed vs. Power")
+
 
 plt.show()
