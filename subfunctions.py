@@ -31,7 +31,6 @@ def taudc_motor(omega: np.ndarray, motor:dict):
 #validates that the inputs are the correct data type
   if not isinstance(omega, np.ndarray) or not isinstance(motor, dict):
     raise Exception("Inputs are not the right data type.")
-
 #calculates the value of the tau
   tau = np.zeros(omega.size)
   for i in range(len(omega)):
@@ -74,6 +73,12 @@ def F_drive(omega: np.ndarray, rover: dict):
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
+  if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or is not isinstance(planet, dict):
+    raise Exception("Inputs are not the right data type.")
+  if min(terrain_angle) > -75 or max(terrain_angle) > 75:
+     raise Exception("To steep")
+  rover_mass = get_mass(Marvin["rover"])
+  Fgt = rover_mass * planet["g_mars"] * np.sin(np.radians(terrain_angle))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
