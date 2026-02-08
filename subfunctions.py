@@ -16,7 +16,7 @@ Marvin = {
     "planet" : {"g_mars" : 3.72}
 }
 
-def taudc_motor(omega: np.ndarray, motor:dict):
+def tau_dcmotor(omega: np.ndarray, motor:dict):
   """
   Docstring for taudc_motor
   
