@@ -72,7 +72,7 @@ def F_drive(omega: np.ndarray, rover: dict):
   if not isinstance(rover, dict):
     raise Exception("Arg 2 should be dict")
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
-  tau = taudc_motor(omega, rover["wheel_assembly"]["motor"])
+  tau = tau_dcmotor(omega, rover["wheel_assembly"]["motor"])
   Fd = 6 * Ng * tau / rover["wheel_assembly"]["wheel"]["radius"] #6 wheels * gear_ratio * shaft torque / radius of the wheel
   return Fd
 
