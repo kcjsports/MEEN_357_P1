@@ -13,7 +13,7 @@ Marvin = {
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
     },
-    "planet" : {"g_mars" : 3.72}
+    "planet" : {"g" : 3.72}
 }
 
 def tau_dcmotor(omega: np.ndarray, motor:dict):
@@ -98,7 +98,7 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
      raise Exception("To steep")
   m = get_mass(rover)
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
-  Fn = m * planet["g_mars"] * np.cos(np.radians(terrain_angle))
+  Fn = m * planet["g"] * np.cos(np.radians(terrain_angle))
   Frr_simple = Crr * Fn
   Frr = special.erf(40 * omega * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
   return Frr
