@@ -29,8 +29,10 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
 #validates that the inputs are the correct data type
-  if not isinstance(omega, np.ndarray) or not isinstance(motor, dict):
-    raise Exception("Inputs are not the right data type.")
+  if not isinstance(omega, np.ndarray):
+    raise Exception("Arg 1 should be np.ndarray")
+  if not isinstance(motor, dict):
+    raise Exception("Arg 2 should be dict")
 #calculates the value of the tau
   tau = np.zeros(omega.size)
   for i in range(len(omega)):
@@ -65,11 +67,13 @@ def get_mass(rover: dict):
   return m
 
 def F_drive(omega: np.ndarray, rover: dict):
-  if not isinstance(omega, np.ndarray) or not isinstance(rover, dict):
-    raise Exception("Inputs are not the right data type.")
-  gear_ratio = get_gear_ratio(Marvin["rover"]["wheel_assembly"]["speed_reducer"])
-  shaft_torque = taudc_motor(omega, Marvin["rover"]["wheel_assembly"]["motor"])
-  Fd = 6 * omega * gear_ratio * shaft_torque #6 wheels * speed * gear_ratio * shaft torque
+  if not isinstance(omega, np.ndarray):
+    raise Exception("Arg 1 should be np.ndarray")
+  if not isinstance(rover, dict):
+    raise Exception("Arg 2 should be dict")
+  Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
+  tau = taudc_motor(omega, rover["wheel_assembly"]["motor"])
+  Fd = 6 * Ng * tau / rover["wheel_assembly"]["wheel"]["radius"] #6 wheels * gear_ratio * shaft torque / radius of the wheel
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
@@ -77,38 +81,42 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
     raise Exception("Inputs are not the right data type.")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
-  m = get_mass(Marvin["rover"])
-  Fgt = m * planet["g_mars"] * np.sin(np.radians(terrain_angle))
+  m = get_mass(rover)
+  Fgt = - m * planet["g_mars"] * np.sin(np.radians(terrain_angle))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
-  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray) or not isinstance(rover, dict) or not isinstance(planet, dict):
-     raise Exception("Inputs are not the right data type.")
+  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
+     raise Exception("Args 1/2 should be np.ndarray.")
+  if not isinstance(rover, dict) or not isinstance(planet, dict):
+      raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
     raise Exception("Crr must be a postive scalar")
   if len(omega) != len(terrain_angle):
      raise Exception("omega and terrain_angle must be equivalent length")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
-  m = get_mass(Marvin["rover"])
-  Ng = get_gear_ratio(Marvin["rover"]["wheel_assembly"]["speed_reducer"])
+  m = get_mass(rover)
+  Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
   Fn = m * planet["g_mars"] * np.cos(np.radians(terrain_angle))
   Frr_simple = Crr * Fn
   Frr = special.erf(40 * omega * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
   return Frr
 
-def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
-  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray) or not isinstance(rover, dict) or not isinstance(planet, dict):
-     raise Exception("Inputs are not the right data type.")
+def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr: float):
+  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
+     raise Exception("Args 1/2 should be np.ndarray.")
+  if not isinstance(rover, dict) or not isinstance(planet, dict):
+      raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
     raise Exception("Crr must be a postive scalar")
   if len(omega) != len(terrain_angle):
      raise Exception("omega and terrain_angle must be equivalent length")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
-  Fd = F_drive(omega, Marvin["rover"])
-  Fgt = F_gravity(terrain_angle, Marvin["rover"], Marvin["planet"])
-  Frr = F_rolling(omega, terrain_angle, Marvin["rover"], Marvin["planet"], Crr)
+  Fd = F_drive(omega, rover)
+  Fgt = F_gravity(terrain_angle, rover, planet)
+  Frr = F_rolling(omega, terrain_angle, rover, planet, Crr)
   Fnet = Fd + Fgt - Frr
   return Fnet
 

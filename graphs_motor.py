@@ -21,4 +21,4 @@ ax[1].plot(t, p); ax[1].set_title("Motor - Torque vs. Power")
 ax[2].plot(omega, p); ax[2].set_title("Motor - Speed vs. Power")
 
 
-# plt.show()
+plt.show()
