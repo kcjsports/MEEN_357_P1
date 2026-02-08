@@ -81,8 +81,10 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
     raise Exception("Inputs are not the right data type.")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
+  Fgt = np.zeros(terrain_angle.size)
   m = get_mass(rover)
-  Fgt = m * planet["g_mars"] * np.sin(np.radians(terrain_angle))
+  for i in range(len(terrain_angle)):
+    Fgt[i] = -1 * m * planet["g_mars"] * np.sin(np.radians(terrain_angle[i]))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
