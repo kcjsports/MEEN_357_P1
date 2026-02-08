@@ -1,25 +1,22 @@
 import numpy as np
 
-#what I think the dictionary is supposed to be. IDK though.
 Marvin = {
   #contains dictionarys about the rover
     "rover" : {
-        #contains definition about the rovers wheels inculuding details of what drives them
-        "wheel_assembly" : {
-          "wheel" : {"radius": 0.3 , "mass": 1.0}, #radius - m, mass - kg
-          "speed_reducer" : {"typ": "good", "diam_pinion": 0.04, "diam_gear": 0.07, "mass":1.5}, 
-          "motor": {"torque_stall": 170, "torque_noload": 0, "speed_noload": 3.80, "mass": 5.0},
+        
+        "wheel_assembly" : { #contains definition about the rovers wheels inculuding details of what drives them
+          "wheel" : {"radius" : 0.3 , "mass" : 1.0}, #radius - m, mass - kg
+          "speed_reducer" : {"typ" : "good", "diam_pinion" : 0.04, "diam_gear" : 0.07, "mass" : 1.5}, 
+          "motor": {"torque_stall" : 170, "torque_noload" : 0, "speed_noload" : 3.80, "mass" : 5.0},
         },
-  #define the mass of the chassis of our rover
-        "chassis": {"mass": 659},
-  #define the mass of the chassis
-        "science_payload" : {"mass": 75},
-  #define the mass of the chassis
-        "power_subsys": {"mass": 90},
-    },
+        "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
+        "science_payload" : {"mass" : 75},   #define the mass of the chassis
+        "power_subsys" : {"mass" : 90},   #define the mass of the chassis
+        "planet" : {"g_mars" : 3.72}
+    }
 }
 
-def taudc_motor(omega:np.ndarray, motor:dict):
+def taudc_motor(omega: np.ndarray, motor:dict):
   """
   Docstring for taudc_motor
   
@@ -44,16 +41,36 @@ def taudc_motor(omega:np.ndarray, motor:dict):
       tau[i] = motor["torque_stall"] 
     else: # for case where 0 <= omega < omega_nl
       tau[i] = motor['torque_stall'] - ((motor['torque_stall']-motor['torque_noload'])/motor['speed_noload'])*omega[i]
-
   return tau
 
 def get_gear_ratio(speed_reducer: dict):
+  if not isinstance(speed_reducer, dict):
+        raise Exception("Expected speed_reducer to be a dictionary.")
+  if "type" not in speed_reducer:
+        raise Exception("speed_reducer must contain a 'type' field.")
+  if speed_reducer["type"].lower() != "reverted":
+        raise Exception("Error: expected speed reducer type 'reverted'.")
+  Ng = (speed_reducer["diam_gear"] / speed_reducer["diam_pinion"]) ** 2
   return Ng
 
 def get_mass(rover: dict):
+  if not isinstance(rover, dict):
+        raise Exception("Expected rover to be a dictionary.")
+  m_chassis = rover["chassis"]["mass"]
+  m_science = rover["science_payload"]["mass"]
+  m_power = rover["power_subsys"]["mass"]
+  m_motor = rover["wheel_assembly"]["motor"]["mass"]
+  m_speed_reducer = rover["wheel_assembly"]["speed_reducer"]["mass"]
+  m_wheel = rover["wheel_assembly"]["wheel"]["mass"]
+  m =  m_chassis + m_science + m_power + 6 * (m_motor + m_speed_reducer + m_wheel)
   return m
 
 def F_drive(omega: np.ndarray, rover: dict):
+  if not isinstance(omega, np.ndarray) or not isinstance(rover, dict):
+    raise Exception("Inputs are not the right data type.")
+  gear_ratio = get_gear_ratio(Marvin["wheel_assembly"]["speed_reducer"])
+  shaft_torque = taudc_motor(omega, Marvin["motor"])
+  Fd = 6 * omega * gear_ratio * shaft_torque #6 wheels * speed * gear_ratio * shaft torque
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
@@ -64,3 +81,4 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
   return Fnet
+
