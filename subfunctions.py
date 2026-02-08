@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import special
 
 Marvin = {
   #contains dictionarys about the rover
@@ -12,8 +13,8 @@ Marvin = {
         "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
-        "planet" : {"g_mars" : 3.72}
-    }
+    },
+    "planet" : {"g_mars" : 3.72}
 }
 
 def taudc_motor(omega: np.ndarray, motor:dict):
@@ -73,17 +74,42 @@ def F_drive(omega: np.ndarray, rover: dict):
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
-  if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or is not isinstance(planet, dict):
+  if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or not isinstance(planet, dict):
     raise Exception("Inputs are not the right data type.")
   if min(terrain_angle) > -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
-  rover_mass = get_mass(Marvin["rover"])
-  Fgt = rover_mass * planet["g_mars"] * np.sin(np.radians(terrain_angle))
+  m = get_mass(Marvin["rover"])
+  Fgt = m * planet["g_mars"] * np.sin(np.radians(terrain_angle))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
+  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray) or not isinstance(rover, dict) or not isinstance(planet, dict):
+     raise Exception("Inputs are not the right data type.")
+  if Crr < 0:
+    raise Exception("Crr must be a postive scalar")
+  if len(omega) != len(terrain_angle):
+     raise Exception("omega and terrain_angle must be equivalent length")
+  if min(terrain_angle) > -75 or max(terrain_angle) > 75:
+     raise Exception("To steep")
+  m = get_mass(Marvin["rover"])
+  Ng = get_gear_ratio(Marvin["wheel_assembly"]["speed_reducer"])
+  Fn = m * planet["g_mars"] * np.cos(np.radians(terrain_angle))
+  Frr_simple = Crr * Fn
+  Frr = special.erf(40 * omega * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
   return Frr
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
+  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray) or not isinstance(rover, dict) or not isinstance(planet, dict):
+     raise Exception("Inputs are not the right data type.")
+  if Crr < 0:
+    raise Exception("Crr must be a postive scalar")
+  if len(omega) != len(terrain_angle):
+     raise Exception("omega and terrain_angle must be equivalent length")
+  if min(terrain_angle) > -75 or max(terrain_angle) > 75:
+     raise Exception("To steep")
+  Fd = F_drive(omega, Marvin["rover"])
+  Fgt = F_gravity(terrain_angle, Marvin["rover"], Marvin["planet"])
+  Frr = F_rolling(omega, terrain_angle, Marvin["rover"], Marvin["planet"], Crr)
+  Fnet = Fd + Fgt - Frr
   return Fnet
 
