@@ -13,7 +13,7 @@ Marvin = {
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
     },
-    "planet" : {"g_mars" : 3.72}
+    "planet" : {"g" : 3.72}
 }
 
 def tau_dcmotor(omega: np.ndarray, motor:dict):
@@ -84,7 +84,7 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
   Fgt = np.zeros(terrain_angle.size)
   m = get_mass(rover)
   for i in range(len(terrain_angle)):
-    Fgt[i] = -1 * m * planet["g_mars"] * np.sin(np.radians(terrain_angle[i]))
+    Fgt[i] = -1 * m * planet["g"] * np.sin(np.radians(terrain_angle[i]))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
