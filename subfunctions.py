@@ -77,10 +77,13 @@ def F_drive(omega: np.ndarray, rover: dict):
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
+  #input validation
   if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or not isinstance(planet, dict):
     raise Exception("Inputs are not the right data type.")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
+  
+  #calculates the force of gravity
   Fgt = np.zeros(terrain_angle.size)
   m = get_mass(rover)
   for i in range(len(terrain_angle)):
@@ -88,6 +91,7 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
+  #input validation
   if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
@@ -98,11 +102,15 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
      raise Exception("omega and terrain_angle must be equivalent length")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
+  
+  #calculates the rolling force
   m = get_mass(rover)
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
-  Fn = m * planet["g"] * np.cos(np.radians(terrain_angle))
-  Frr_simple = Crr * Fn
-  Frr = special.erf(40 * omega * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
+  Frr = np.zeros(omega.size)
+  for i in omega.size:
+    Fn = m * planet["g"] * np.cos(np.radians(terrain_angle[i]))
+    Frr_simple = Crr * Fn
+    Frr[i] =-1 * special.erf(40 * omega[i] * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
   return Frr
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr: float):
