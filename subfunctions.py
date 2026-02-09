@@ -35,7 +35,7 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
     raise Exception("Arg 2 should be dict")
 #calculates the value of the tau
   tau = np.zeros(omega.size)
-  for i in range(len(omega)):
+  for i in range(omega.size):
     if omega[i] > motor["speed_noload"]: # for case where omega > omega_nl
       tau[i] = 0
     elif omega[i] < 0: # for case where omega < 0
@@ -121,9 +121,11 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
       raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
     raise Exception("Crr must be a postive scalar")
-  if len(omega) != len(terrain_angle):
+  if omega.size != terrain_angle.size:
      raise Exception("omega and terrain_angle must be equivalent length")
-  if min(terrain_angle) < -75 or max(terrain_angle) > 75:
+  minu = np.min(terrain_angle)
+  maxu = np.max(terrain_angle)
+  if minu < -75 or maxu > 75:
      raise Exception("To steep")
   Fd = F_drive(omega, rover)
   Fgt = F_gravity(terrain_angle, rover, planet)
