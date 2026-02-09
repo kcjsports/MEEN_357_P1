@@ -38,7 +38,6 @@ axes[0].set_ylabel('Speed')
 axes[1].set_ylabel('Power')
 axes[2].set_ylabel('Power')
 
-
 axes[0].set_box_aspect(1)
 axes[1].set_box_aspect(1)
 axes[2].set_box_aspect(1)
