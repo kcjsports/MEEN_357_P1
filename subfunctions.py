@@ -129,6 +129,6 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   Fd = F_drive(omega, rover)
   Fgt = F_gravity(terrain_angle, rover, planet)
   Frr = F_rolling(omega, terrain_angle, rover, planet, Crr)
-  Fnet = Fd + Fgt - Frr
+  Fnet = Fd + Fgt + Frr
   return Fnet
 
