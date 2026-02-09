@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import special
+from math import erf
 
 Marvin = {
   #contains dictionarys about the rover
@@ -110,7 +110,7 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
   for i in range(omega.size):
     Fn = m * planet["g"] * np.cos(np.radians(terrain_angle[i]))
     Frr_simple = Crr * Fn
-    Frr[i] =-1 * special.erf(40 * omega[i] * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
+    Frr[i] = erf(40 * omega[i] * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
   return Frr
 #np.array(1)
 #print(F_rolling(np.array([1,2,3]), np.array([5,30,3]), Marvin["rover"], Marvin["planet"], 0.5))
