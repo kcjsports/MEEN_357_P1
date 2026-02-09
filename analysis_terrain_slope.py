@@ -11,7 +11,7 @@ motor = sf.Marvin["rover"]["wheel_assembly"]["motor"]
 rover = sf.Marvin["rover"]
 planet = sf.Marvin["planet"]
 #variables
-omega = np.linspace(0, motor["speed_noload"], 25) #array of our omega 
+omega = np.linspace(0, 3.8, 25) #array of our omega 
 Crr = 0.15
 slope_array_deg = np.linspace(-15,35,25)
 v_max = np.ndarray(25)
@@ -20,8 +20,13 @@ motor = sf.Marvin["rover"]["wheel_assembly"]["motor"]
 
 #Find where Fnet - tau/r = 0 for all values in slope array
 root = np.zeros(25)
+
+#NOT FINShed but i think it almost works
 for i in range(25):
-    root[i] = root_scalar(f,method='bisect', args=(slope_array_deg[i],rover, planet), bracket=[0,motor['speed_noload']]).root
+    if f(0, slope_array_deg[i],rover, planet) * f(3.8, slope_array_deg[i],rover, planet) >= 0:
+        print("aga")
+    else:
+        root[i] = root_scalar(f,method='bisect', args=(slope_array_deg[i],rover, planet), bracket=[0,motor['speed_noload']]).root
 print(root)
 
 
