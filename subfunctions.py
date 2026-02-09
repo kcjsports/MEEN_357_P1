@@ -109,11 +109,11 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
   Frr = np.zeros(omega.size)
   for i in range(omega.size):
     Fn = m * planet["g"] * np.cos(np.radians(terrain_angle[i]))
-    Frr_simple = Crr * (Fn/6)
-    Frr[i] = -1 * erf(40 * omega[i] * Ng * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple *6
+    Frr_simple = -Crr * (Fn/6)
+    Frr[i] =  erf(40 * (omega[i] / Ng) * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple * 6
   return Frr
-# np.array(1)
-# print(F_rolling(np.array([1]), np.array([5]), Marvin["rover"], Marvin["planet"], 0.5))
+np.array(1)
+print(F_rolling(np.array([1]), np.array([5]), Marvin["rover"], Marvin["planet"], 0.5))
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr: float):
   if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
