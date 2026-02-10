@@ -22,13 +22,13 @@ axes[0].plot(t, omega); axes[0].set_title("Motor - Torque vs. Speed")
 axes[1].plot(t, p); axes[1].set_title("Motor - Torque vs. Power")
 axes[2].plot(omega, p); axes[2].set_title("Motor - Speed vs. Power")
 
-axes[0].set_xlabel('Torque')
-axes[1].set_xlabel('Torque')
-axes[2].set_xlabel('Speed')
+axes[0].set_xlabel('Torque (Nm)')
+axes[1].set_xlabel('Torque (Nm)')
+axes[2].set_xlabel('Speed (m/s)')
 
-axes[0].set_ylabel('Speed')
-axes[1].set_ylabel('Power')
-axes[2].set_ylabel('Power')
+axes[0].set_ylabel('Speed(m/s)')
+axes[1].set_ylabel('Power (W)')
+axes[2].set_ylabel('Power (W)')
 
 
 axes[0].set_box_aspect(1)
