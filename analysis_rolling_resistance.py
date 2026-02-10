@@ -29,5 +29,5 @@ for i in range(25):
 plt.plot(Crr_array, v_max)
 plt.xlabel('Coefficient of Rolling Resistance')
 plt.ylabel('Maximum Rover Velocity (m/s)')
-plt.title('Rover Maximum Velocity vs Coefficient of Rolling Resistance')
+plt.title('Rover Maximum Velocity at different Coefficient of Rolling Resistance')
 plt.show()

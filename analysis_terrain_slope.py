@@ -29,5 +29,5 @@ for i in range(25):
 plt.plot(slope_array_deg, v_max)
 plt.xlabel('Terrain Angle (degrees)')
 plt.ylabel('Maximum Rover Velocity (m/s)')
-plt.title('Rover Maximum Velocity vs Terrain Slope')
+plt.title('Rover Maximum Velocity at Different Terrain Angles')
 plt.show()
