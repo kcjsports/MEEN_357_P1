@@ -21,7 +21,7 @@ wheel_radius = sf.Marvin["rover"]["wheel_assembly"]["wheel"]["radius"]
 #finds v_max at each slope
 for i in range(25):
     if f(0, slope_array_deg[i],rover, planet) * f(3.8, slope_array_deg[i],rover, planet) >= 0:
-        v_max[i] = motor['speed_noload'] * wheel_radius
+        v_max[i] = float('NaN')
     else:
         v_max[i] = root_scalar(f,method='bisect', args=(slope_array_deg[i],rover, planet), bracket=[0,motor['speed_noload']]).root * wheel_radius
 
