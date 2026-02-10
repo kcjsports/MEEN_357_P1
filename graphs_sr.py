@@ -26,9 +26,9 @@ plt.rcParams["font.family"] = "serif"
 
 fig, axes = plt.subplots(3,1, figsize=(9,9))
 
-axes[0].plot(t_out, omega_out); axes[0].set_title("Motor - Torque vs. Speed")
-axes[1].plot(t_out, p); axes[1].set_title("Motor - Torque vs. Power")
-axes[2].plot(omega_out, p); axes[2].set_title("Motor - Speed vs. Power")
+axes[0].plot(t_out, omega_out); axes[0].set_title("Motor - Torque vs. Speed (With Speed Reducer)")
+axes[1].plot(t_out, p); axes[1].set_title("Motor - Torque vs. Power (With Speed Reducer)")
+axes[2].plot(omega_out, p); axes[2].set_title("Motor - Speed vs. Power (With Speed Reducer)")
 
 axes[0].set_xlabel('Torque (Nm)')
 axes[1].set_xlabel('Torque (Nm)')
