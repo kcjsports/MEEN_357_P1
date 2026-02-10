@@ -29,7 +29,7 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
 #validates that the inputs are the correct data type
-  if not np.ndim(omega) >= 0:
+  if not np.ndim(omega) >= 0 or not isinstance(omega,np.ndarray):
     raise Exception("Arg 1 should be np.ndarray")
   if not isinstance(motor, dict):
     raise Exception("Arg 2 should be dict")
@@ -120,7 +120,7 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   if not isinstance(rover, dict) or not isinstance(planet, dict):
       raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
-    raise Exception("coefficient of rolling resistance must be a postive input")
+    raise Exception("Your Crr input must be a postive input")
   if omega.size != terrain_angle.size:
      raise Exception("omega and terrain_angle must be equivalent length")
   minu = np.min(terrain_angle)
