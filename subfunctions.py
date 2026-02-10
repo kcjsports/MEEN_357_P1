@@ -29,8 +29,8 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
 #validates that the inputs are the correct data type
-  if not np.ndim(omega) >= 0 or not isinstance(omega,np.ndarray):
-    raise Exception("Arg 1 should be np.ndarray")
+  if not isinstance(omega, np.ndarray):
+    raise Exception("input speed should be a scalar or array")
   if not isinstance(motor, dict):
     raise Exception("Arg 2 should be dict")
 #calculates the value of the tau
