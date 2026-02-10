@@ -29,7 +29,7 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
 #validates that the inputs are the correct data type
-  if not isinstance(omega, np.ndarray):
+  if not np.ndim(omega) >= 0:
     raise Exception("Arg 1 should be np.ndarray")
   if not isinstance(motor, dict):
     raise Exception("Arg 2 should be dict")
@@ -68,7 +68,7 @@ def get_mass(rover: dict):
 
 def F_drive(omega: np.ndarray, rover: dict):
   if not isinstance(omega, np.ndarray):
-    raise Exception("Arg 1 should be np.ndarray")
+    raise Exception("input speed should be a scalar or array")
   if not isinstance(rover, dict):
     raise Exception("Arg 2 should be dict")
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
@@ -99,7 +99,7 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
   if Crr < 0:
     raise Exception("Crr must be a postive scalar")
   if omega.size != terrain_angle.size:
-     raise Exception("omega and terrain_angle must be equivalent length")
+     raise Exception("omega and terrain_angle input must contain an equal amount of inputs")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
   
@@ -120,7 +120,7 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   if not isinstance(rover, dict) or not isinstance(planet, dict):
       raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
-    raise Exception("Crr must be a postive scalar")
+    raise Exception("Crr must be a postive input")
   if omega.size != terrain_angle.size:
      raise Exception("omega and terrain_angle must be equivalent length")
   minu = np.min(terrain_angle)
