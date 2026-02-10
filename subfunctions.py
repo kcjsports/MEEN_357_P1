@@ -99,7 +99,7 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
   if Crr < 0:
     raise Exception("Crr must be a postive scalar")
   if omega.size != terrain_angle.size:
-     raise Exception("omega and terrain_angle input must contain an equal amount of inputs")
+     raise Exception("omega and terrain_angle arrays must be the same size")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
   
@@ -120,7 +120,7 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   if not isinstance(rover, dict) or not isinstance(planet, dict):
       raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
-    raise Exception("Crr must be a postive input")
+    raise Exception("coefficient of rolling resistance must be a postive input")
   if omega.size != terrain_angle.size:
      raise Exception("omega and terrain_angle must be equivalent length")
   minu = np.min(terrain_angle)
