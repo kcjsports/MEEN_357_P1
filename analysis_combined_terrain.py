@@ -1,27 +1,28 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar
-import graphs_motor
-import subfunctions
+import matplotlib.pyplot as plt
+import subfunctions as sf
 
-#imported variables
-N = graphs_motor.N #our number of data point
-Marvin = subfunctions.Marvin
-omega = graphs_motor.omega
+#function that gets fed to the root finder
+def f(o, ta, r, p, Crr = 0.15):
+    return sf.F_net(np.array([o]), np.array([ta]), r, p, Crr)
 
+#Imported variables
+motor = sf.Marvin["rover"]["wheel_assembly"]["motor"]
+rover = sf.Marvin["rover"]
+planet = sf.Marvin["planet"]
 #variables
-Crr_array = np.linspace(0.01,0.5,N)
-slope_array_deg = np.linspace(-15,35,N)
-CRR, SLOPE = np.meshgrid(Crr_array, slope_array_deg)
-VMAX = np.zeros(np.shape(CRR), dtype=float)
+omega = np.linspace(0, motor['speed_noload'], 25) #array of our omega 
+Crr_array = np.linspace(0.01,0.5,25)
+slope_array_deg = np.linspace(-15,35,25)
+v_max = np.ndarray(25)
+wheel_radius = sf.Marvin["rover"]["wheel_assembly"]["wheel"]["radius"]
 
-
-
-M = np.shape(CRR)[0]
-for i in range(N):
-  for j in range(N):
-    Crr_sample = float(CRR[i,j])
-    slope_sample = float(SLOPE[i,j])
-    VMAX[i,j] = 
-
+#finds v_max at each slope
+for i in range(25):
+  for j in range(25):
+    if f(0, slope_array_deg[i],rover, planet, Crr_array[j]) * f(3.8, slope_array_deg[i],rover, planet, Crr_array[j]) >= 0:
+        v_max[i] = motor['speed_noload'] * wheel_radius
+    else:
+        v_max[i] = root_scalar(f,method='bisect', args=(slope_array_deg[i],rover, planet, Crr_array[j]), bracket=[0,motor['speed_noload']]).root * wheel_radius
 

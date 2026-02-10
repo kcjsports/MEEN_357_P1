@@ -1,29 +1,33 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar
-import graphs_motor
-import subfunctions
+import matplotlib.pyplot as plt
+import subfunctions as sf
+
+#function that gets fed to the root finder
+def f(o, ta, r, p, Crr = 0.15):
+    return sf.F_net(np.array([o]), np.array([ta]), r, p, Crr)
 
 #Imported variables
-N = graphs_motor.N #our number of data point
-Marvin = subfunctions.Marvin
-omega = graphs_motor.omega
-
+motor = sf.Marvin["rover"]["wheel_assembly"]["motor"]
+rover = sf.Marvin["rover"]
+planet = sf.Marvin["planet"]
 #variables
+omega = np.linspace(0, motor['speed_noload'], 25) #array of our omega 
 Crr_array = np.linspace(0.01,0.5,25)
-slope_array_deg = np.zeros(N)
-v_max = np.ndarray(N)
-wheel_radius = Marvin["rover"]["wheel_assembly"]["wheel"]["radius"]
+slope_array_deg = np.zeros(25)
+v_max = np.ndarray(25)
+wheel_radius = sf.Marvin["rover"]["wheel_assembly"]["wheel"]["radius"]
 
-
-
-#Find where Fnet - tau/r = 0 for all values in slope array
-
-
+#finds v_max at each slope
+for i in range(25):
+    if f(0, 0,rover, planet, Crr_array[i]) * f(3.8, 0,rover, planet, Crr_array[i]) >= 0:
+        v_max[i] = motor['speed_noload'] * wheel_radius
+    else:
+        v_max[i] = root_scalar(f,method='bisect', args=(slope_array_deg[i],rover, planet,Crr_array[i]), bracket=[0,motor['speed_noload']]).root * wheel_radius
 
 
 plt.plot(Crr_array, v_max)
-plt.xlabel('Terrain Angle (degrees)')
+plt.xlabel('Coefficient of Rolling Resistance')
 plt.ylabel('Maximum Rover Velocity (m/s)')
-plt.title('Rover Maximum Velocity vs Terrain Slope')
+plt.title('Rover Maximum Velocity vs Coefficient of Rolling Resistance')
 plt.show()
