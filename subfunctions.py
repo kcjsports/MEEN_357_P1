@@ -119,7 +119,7 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
       raise Exception("Args 3/4 should be dicts.")
-  if Crr < 0:
+  if Crr <= 0:
     raise Exception("Your Crr input must be a postive input")
   if omega.size != terrain_angle.size:
      raise Exception("omega and terrain_angle must be equivalent length")
