@@ -7,13 +7,16 @@ Marvin = {
         "wheel_assembly" : { #contains definition about the rovers wheels inculuding details of what drives them
           "wheel" : {"radius" : 0.3 , "mass" : 1.0}, #radius - m, mass - kg
           "speed_reducer" : {"type" : "reverted", "diam_pinion" : 0.04, "diam_gear" : 0.07, "mass" : 1.5}, 
-          "motor": {"torque_stall" : 170, "torque_noload" : 0, "speed_noload" : 3.80, "mass" : 5.0},
+          "motor": {"torque_stall" : 170, "torque_noload" : 0, "speed_noload" : 3.80, "mass" : 5.0, "effcy_tau" : np.array([0, 10, 20, 40, 70, 165]), "effcy" : np.array([0, 0.60, 0.78, 0.73, 0.53, 0.04])},
+          "telemetry" : {"time" : 0, "completition_time" : 0, "velocity" : 0, "position": 0, "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": 0, "battery_energy": 0, "energy_per_distance": 0}
         },
         "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
     },
-    "planet" : {"g" : 3.72}
+    "planet" : {"g" : 3.72},
+    "0_experiement" : {"time_range" : 0, "initial_conditions" : 0, "alpha_dist" : 0, "alpha_deg" : 0, "Crr" : 0},
+    "end_event" : {"max_distance" : 50, "max_time" : 5000, "max_velocity" : 0.01}
 }
 
 def tau_dcmotor(omega: np.ndarray, motor:dict):
@@ -133,3 +136,22 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   Fnet = Fd + Fgt + Frr
   return Fnet
 
+def motorW(v: np.ndarray, rover: dict):
+   
+   return w
+
+def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experiment: dict):
+   
+   return dydt
+
+def mechpower(v: np.ndarray, rover: dict):
+   
+   return P
+
+def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
+   
+   return E
+
+def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict):
+   
+   return rover
