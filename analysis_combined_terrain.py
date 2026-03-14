@@ -7,7 +7,8 @@ from mpl_toolkits.mplot3d import Axes3D
 
 #function that gets fed to the root finder
 def f(o, ta, r, p, Crr):
-    return sf.F_net(np.array([o]), np.array([ta]), r, p, Crr)
+    result = sf.F_net(o, ta, r, p, Crr)
+    return result
 
 #Imported variables
 motor = Marvin["rover"]["wheel_assembly"]["motor"]

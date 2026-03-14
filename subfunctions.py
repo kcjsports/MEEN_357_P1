@@ -35,19 +35,31 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
 #input validation
-  if not isinstance(omega, np.ndarray):
+  if not isinstance(omega, (np.ndarray, numbers.Number)):
     raise Exception("input speed should be a scalar or array")
   if not isinstance(motor, dict):
     raise Exception("Arg 2 should be dict")
+  
 #calculates the value of the tau
-  tau = np.zeros(omega.size)
-  for i in range(omega.size):
-    if omega[i] > motor["speed_noload"]: # for case where omega > omega_nl
-      tau[i] = 0
-    elif omega[i] < 0: # for case where omega < 0
-      tau[i] = motor["torque_stall"] 
-    else: # for case where 0 <= omega < omega_nl
-      tau[i] = motor['torque_stall'] - ((motor['torque_stall']-motor['torque_noload'])/motor['speed_noload'])*omega[i]
+  tau = 0
+  if isinstance(omega, np.ndarray):
+    iter = omega.size
+    tau = np.zeros(omega.size)
+    for i in range(iter):
+      if omega[i] > motor["speed_noload"]: # for case where omega > omega_nl
+        tau[i] = 0
+      elif omega[i] < 0: # for case where omega < 0
+        tau[i] = motor["torque_stall"] 
+      else: # for case where 0 <= omega < omega_nl
+        tau[i] = motor['torque_stall'] - ((motor['torque_stall']-motor['torque_noload'])/motor['speed_noload'])*omega[i]
+  else:
+      for i in range(1):
+        if omega > motor["speed_noload"]: # for case where omega > omega_nl
+          tau = 0
+        elif omega < 0: # for case where omega < 0
+          tau = motor["torque_stall"] 
+        else: # for case where 0 <= omega < omega_nl
+          tau = motor['torque_stall'] - ((motor['torque_stall']-motor['torque_noload'])/motor['speed_noload'])*omega
   return tau
 
 def get_gear_ratio(speed_reducer: dict):
@@ -112,7 +124,7 @@ def F_drive(omega: np.ndarray, rover: dict):
 
   #input validation
 
-  if not isinstance(omega, np.ndarray):
+  if not isinstance(omega, (np.ndarray, numbers.Number)):
     raise Exception("input speed should be a scalar or array")
   if not isinstance(rover, dict):
     raise Exception("Rover should be a dict")
@@ -138,16 +150,25 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
   '''Calculates the force of gravity on the rover in (N) given the terrain angle in degrees, the rover data, and the planet data'''
 
   #input validation
-  if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or not isinstance(planet, dict):
+  if not isinstance(terrain_angle, (np.ndarray, numbers.Number)) and not isinstance(rover, dict) or not isinstance(planet, dict):
     raise Exception("Inputs are not the right data type.")
-  if min(terrain_angle) < -75 or max(terrain_angle) > 75:
+  if isinstance(terrain_angle, np.ndarray):
+     if min(terrain_angle) < -75 or max(terrain_angle) > 75:
+      raise Exception("To steep")
+  elif terrain_angle < -75 or terrain_angle > 75:
      raise Exception("To steep")
   
   #calculates the x force of gravity
-  Fgt = np.zeros(terrain_angle.size)
+  if isinstance(terrain_angle, np.ndarray):
+     Fgt = np.zeros(terrain_angle.size)
+     m = get_mass(rover)
+     for i in range(len(terrain_angle)): #Various terrain angles
+        Fgt[i] = -1 * m * planet["g"] * np.sin(np.radians(terrain_angle[i]))
+     return Fgt
+  
+  Fgt = 0
   m = get_mass(rover)
-  for i in range(len(terrain_angle)): #Various terrain angles
-    Fgt[i] = -1 * m * planet["g"] * np.sin(np.radians(terrain_angle[i]))
+  Fgt = -1 * m * planet["g"] * np.sin(np.radians(terrain_angle))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
@@ -170,25 +191,37 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
 
   #input validation
 
-  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
+  if not isinstance(omega, (np.ndarray, numbers.Number)) or not isinstance(terrain_angle, (np.ndarray, numbers.Number)):
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
       raise Exception("Args 3/4 should be dicts.")
   if Crr < 0:
     raise Exception("Crr must be a postive scalar")
-  if omega.size != terrain_angle.size:
-     raise Exception("omega and terrain_angle arrays must be the same size")
-  if min(terrain_angle) < -75 or max(terrain_angle) > 75:
-     raise Exception("To steep")
+  if isinstance(terrain_angle, np.ndarray):
+     if min(terrain_angle) < -75 or max(terrain_angle) > 75:
+      raise Exception("To steep")
+     if omega.size != terrain_angle.size:
+      raise Exception("omega and terrain_angle arrays must be the same size")
+  else:
+    if terrain_angle < -75 or terrain_angle > 75:
+      raise Exception("To steep")
   
   #calculates the rolling force
+  if isinstance(omega, np.ndarray):
+    m = get_mass(rover)
+    Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
+    Frr = np.zeros(omega.size)
+    for i in range(omega.size): #Various terrain angles and speeds
+      Fn = m * planet["g"] * np.cos(np.radians(terrain_angle[i]))
+      Frr_simple = -Crr * Fn
+      Frr[i] =  erf(40 * (omega[i] / Ng) * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
+    return Frr
+  
   m = get_mass(rover)
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
-  Frr = np.zeros(omega.size)
-  for i in range(omega.size): #Various terrain angles and speeds
-    Fn = m * planet["g"] * np.cos(np.radians(terrain_angle[i]))
-    Frr_simple = -Crr * Fn
-    Frr[i] =  erf(40 * (omega[i] / Ng) * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
+  Fn = m * planet["g"] * np.cos(np.radians(terrain_angle))
+  Frr_simple = -Crr * Fn
+  Frr =  erf(40 * (omega / Ng) * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
   return Frr
 
 
@@ -212,13 +245,13 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
 
   #input validation
 
-  if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
+  if not isinstance(omega, (np.ndarray, numbers.Number)) or not isinstance(terrain_angle, (np.ndarray, numbers.Number)):
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
       raise Exception("Args 3/4 should be dicts.")
   if Crr <= 0:
     raise Exception("Your Crr input must be a postive input")
-  if omega.size != terrain_angle.size:
+  if isinstance(omega,np.ndarray) and isinstance(terrain_angle, np.ndarray) and omega.size != terrain_angle.size:
      raise Exception("omega and terrain_angle must be equivalent length")
   minu = np.min(terrain_angle)
   maxu = np.max(terrain_angle)
