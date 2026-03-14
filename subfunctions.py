@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 from math import erf
 
 Marvin = {
@@ -15,7 +16,7 @@ Marvin = {
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
     },
     "planet" : {"g" : 3.72},
-    "0_experiement" : {"time_range" : 0, "initial_conditions" : 0, "alpha_dist" : 0, "alpha_deg" : 0, "Crr" : 0},
+    "experiment" : {'time_range' : np.array([0,20000]), 'initial_conditions' : np.array([0.325,0]), 'alpha_dist' : np.array([0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]), 'alpha_deg' : np.array([2.032, 11.509, 2.478, 7.182, 5.511, 10.981, 5.601, -0.184, 0.714, 4.151, 4.042]), 'Crr' : 0.1},
     "end_event" : {"max_distance" : 50, "max_time" : 5000, "max_velocity" : 0.01}
 }
 
@@ -137,8 +138,19 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   return Fnet
 
 def motorW(v: np.ndarray, rover: dict):
-   
-   return w
+   #input validation
+   if not isinstance(v, (np.ndarray, numbers.Number)):
+      raise Exception("The rotaional velocity of the rover must be in the form of a scalar or a vector")
+   if isinstance(v, np.ndarray) and v.ndim == 1:
+      raise Exception("The rotaional velocity vector must only have one row")
+   if isinstance(rover, dict):
+      raise Exception("The rover input must be a dictonary")
+  
+   #caluates and returns the rotional speed of the shaft
+   r = rover["wheel_assembly"]["wheel"]["radius"] #radius of the wheels
+   w_out = v/r #W_out is the roational speed of the wheels
+   w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
+   return w_in 
 
 def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experiment: dict):
    
