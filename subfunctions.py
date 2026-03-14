@@ -2,6 +2,7 @@ import numpy as np
 import numbers
 from math import erf
 import scipy.integrate as integrate
+from scipy.interpolate import interp1d
 
 Marvin = {
   #contains dictionarys about the rover
@@ -308,8 +309,14 @@ def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experimen
   """
 
   '''Returns the time derivative of the rover's translational velocity and position in (m/s^2) and (m/s) given the time, the rover's translational velocity and position, the rover data, the planet data, and the experiment data'''
-
   #input validation
+
+  #original data interpolated between useing an cubic spline
+  alpha_fun = interp1d(experiment['alpha_dist'], experiment['alpha_deg'], kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
+  terrain_angle = alpha_fun(y[1])
+  
+  x = np.linspace(experiment['alpha_dist'].min(), experiment['alpha_dist'].max(), 100)
+
   return dydt
 
 def mechpower(v: np.ndarray, rover: dict):
