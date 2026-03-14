@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 import subfunctions as sf
-from Marvin import Marvin
+from subfunctions import Marvin
 from mpl_toolkits.mplot3d import Axes3D
 
 #function that gets fed to the root finder

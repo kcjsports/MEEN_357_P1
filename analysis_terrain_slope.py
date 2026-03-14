@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 import subfunctions as sf
-from Marvin import Marvin
+from subfunctions import Marvin
 
 #function that gets fed to the root finder
 def f(o, ta, r, p, Crr = 0.15):

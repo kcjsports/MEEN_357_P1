@@ -2,6 +2,24 @@ import numpy as np
 import numbers
 from math import erf
 
+Marvin = {
+  #contains dictionarys about the rover
+    "rover" : {
+        "wheel_assembly" : { #contains definition about the rovers wheels inculuding details of what drives them
+          "wheel" : {"radius" : 0.3 , "mass" : 1.0}, #radius - m, mass - kg
+          "speed_reducer" : {"type" : "reverted", "diam_pinion" : 0.04, "diam_gear" : 0.07, "mass" : 1.5}, 
+          "motor": {"torque_stall" : 170, "torque_noload" : 0, "speed_noload" : 3.80, "mass" : 5.0, "effcy_tau" : np.array([0, 10, 20, 40, 70, 165]), "effcy" : np.array([0, 0.60, 0.78, 0.73, 0.53, 0.04])},
+          "telemetry" : {"time" : 0, "completition_time" : 0, "velocity" : 0, "position": 0, "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": 0, "battery_energy": 0, "energy_per_distance": 0}
+        },
+        "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
+        "science_payload" : {"mass" : 75},   #define the mass of the chassis
+        "power_subsys" : {"mass" : 90},   #define the mass of the chassis
+    },
+    "planet" : {"g" : 3.72},
+    "experiment" : {'time_range' : np.array([0,20000]), 'initial_conditions' : np.array([0.325,0]), 'alpha_dist' : np.array([0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]), 'alpha_deg' : np.array([2.032, 11.509, 2.478, 7.182, 5.511, 10.981, 5.601, -0.184, 0.714, 4.151, 4.042]), 'Crr' : 0.1},
+    "end_event" : {"max_distance" : 50, "max_time" : 5000, "max_velocity" : 0.01}
+}
+
 def tau_dcmotor(omega: np.ndarray, motor:dict):
   """
   Docstring for taudc_motor
@@ -14,7 +32,7 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
 
   '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
 
-#validates that the inputs are the correct data type
+#input validation
   if not isinstance(omega, np.ndarray):
     raise Exception("input speed should be a scalar or array")
   if not isinstance(motor, dict):
@@ -31,18 +49,44 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   return tau
 
 def get_gear_ratio(speed_reducer: dict):
+  """
+  Docstring for get_gear_ratio
+  
+  :param speed_reducer: Speed Reducer Data
+  :type omega: dict
+  """
+
+  '''Returns the gear ratio of the speed reducer'''
+
+  #input validation
   if not isinstance(speed_reducer, dict):
         raise Exception("Expected speed_reducer to be a dictionary.")
   if "type" not in speed_reducer:
         raise Exception("speed_reducer must contain a 'type' field.")
   if speed_reducer["type"].lower() != "reverted":
         raise Exception("Error: expected speed reducer type 'reverted'.")
+  
+  #Calculates and returns the gear ratio
   Ng = (speed_reducer["diam_gear"] / speed_reducer["diam_pinion"]) ** 2
   return Ng
 
 def get_mass(rover: dict):
+  """
+  Docstring for get_mass
+  
+  :param rover: All rover data
+  :type rover: dict
+  """
+
+  '''Returns the total mass of the rover in (kg)'''
+  
+  #input validation
+
   if not isinstance(rover, dict):
         raise Exception("Expected rover to be a dictionary.")
+  
+  #Mass of the rover is the sum of the mass of the chassis, science payload, power subsystem, and 6 times the mass of the wheel assembly (motor + speed reducer + wheel)
+
   m_chassis = rover["chassis"]["mass"]
   m_science = rover["science_payload"]["mass"]
   m_power = rover["power_subsys"]["mass"]
@@ -53,31 +97,77 @@ def get_mass(rover: dict):
   return m
 
 def F_drive(omega: np.ndarray, rover: dict):
+  """
+  Docstring for F_drive
+  
+  :param omega: An array of shaft speeds
+  :type omega: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  """
+
+  '''Returns the resulting drive force of the rover in (N) given shaft speed, omega, in (rad/s)'''
+
+  #input validation
+
   if not isinstance(omega, np.ndarray):
     raise Exception("input speed should be a scalar or array")
   if not isinstance(rover, dict):
-    raise Exception("Arg 2 should be dict")
+    raise Exception("Rover should be a dict")
+  
+  #Calculates the drive force using the formula Fd = 6 * Ng * tau / r, where Ng is the gear ratio, tau is the motor shaft torque, and r is the radius of the wheel
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
   tau = tau_dcmotor(omega, rover["wheel_assembly"]["motor"])
   Fd = 6 * Ng * tau / rover["wheel_assembly"]["wheel"]["radius"] #6 wheels * gear_ratio * shaft torque / radius of the wheel
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
+  """
+  Docstring for F_gravity
+  
+  :param terrain_angle: An array of terrain angles in degrees
+  :type terrain_angle: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  :param planet: All planet data
+  :type planet: dict
+  """
+
+  '''Calculates the force of gravity on the rover in (N) given the terrain angle in degrees, the rover data, and the planet data'''
+
   #input validation
   if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or not isinstance(planet, dict):
     raise Exception("Inputs are not the right data type.")
   if min(terrain_angle) < -75 or max(terrain_angle) > 75:
      raise Exception("To steep")
   
-  #calculates the force of gravity
+  #calculates the x force of gravity
   Fgt = np.zeros(terrain_angle.size)
   m = get_mass(rover)
-  for i in range(len(terrain_angle)):
+  for i in range(len(terrain_angle)): #Various terrain angles
     Fgt[i] = -1 * m * planet["g"] * np.sin(np.radians(terrain_angle[i]))
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
+  """
+  Docstring for F_rolling
+  
+  :param omega: An array of shaft speeds
+  :type omega: np.ndarray
+  :param terrain_angle: An array of terrain angles in degrees
+  :type terrain_angle: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  :param planet: All planet data
+  :type planet: dict
+  :param Crr: Coefficient of rolling resistance
+  :type Crr: Positive Scalar
+  """
+
+  '''Calculates the force of rolling resistance on the rover in (N) given the terrain angle in degrees, the rover data, the planet data, and the coefficient of rolling resistance'''
+
   #input validation
+
   if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
@@ -93,7 +183,7 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
   m = get_mass(rover)
   Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
   Frr = np.zeros(omega.size)
-  for i in range(omega.size):
+  for i in range(omega.size): #Various terrain angles and speeds
     Fn = m * planet["g"] * np.cos(np.radians(terrain_angle[i]))
     Frr_simple = -Crr * Fn
     Frr[i] =  erf(40 * (omega[i] / Ng) * rover["wheel_assembly"]["wheel"]["radius"]) * Frr_simple
@@ -101,6 +191,25 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
 
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr: float):
+  """
+  Docstring for F_net
+  
+  :param omega: An array of shaft speeds
+  :type omega: np.ndarray
+  :param terrain_angle: An array of terrain angles in degrees
+  :type terrain_angle: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  :param planet: All planet data
+  :type planet: dict
+  :param Crr: Coefficient of rolling resistance
+  :type Crr: Positive Scalar
+  """
+
+  '''Calculates the net force on the rover in (N) given the terrain angle in degrees, the rover data, the planet data, and the coefficient of rolling resistance'''
+
+  #input validation
+
   if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
@@ -113,6 +222,8 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   maxu = np.max(terrain_angle)
   if minu < -75 or maxu > 75:
      raise Exception("To steep")
+  
+  #Calculates the net force using the formula Fnet = Fd + Fgt + Frr, where Fd is the drive force, Fgt is the x force of gravity, and Frr is the rolling resistance force
   Fd = F_drive(omega, rover)
   Fgt = F_gravity(terrain_angle, rover, planet)
   Frr = F_rolling(omega, terrain_angle, rover, planet, Crr)
@@ -120,32 +231,109 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   return Fnet
 
 def motorW(v: np.ndarray, rover: dict):
+  """
+  Docstring for motorW
+  
+  :param v: A 1 array of the rover's translational velocity in (m/s)
+  :type v: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  """
+
+  '''Returns the rotational speed of the motor shaft in (rad/s) given the translational velocity of the rover in (m/s) and the rover data'''
+
    #input validation
-   if not isinstance(v, (np.ndarray, numbers.Number)):
-      raise Exception("The rotaional velocity of the rover must be in the form of a scalar or a vector")
-   if isinstance(v, np.ndarray) and v.ndim == 1:
-      raise Exception("The rotaional velocity vector must only have one row")
-   if isinstance(rover, dict):
-      raise Exception("The rover input must be a dictonary")
+  if not isinstance(v, (np.ndarray, numbers.Number)):
+    raise Exception("The rotaional velocity of the rover must be in the form of a scalar or a vector")
+  if isinstance(v, np.ndarray) and v.ndim == 1:
+    raise Exception("The rotaional velocity vector must only have one row")
+  if isinstance(rover, dict):
+    raise Exception("The rover input must be a dictonary")
   
    #caluates and returns the rotional speed of the shaft
-   r = rover["wheel_assembly"]["wheel"]["radius"] #radius of the wheels
-   w_out = v/r #W_out is the roational speed of the wheels
-   w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
-   return w_in 
+  r = rover["wheel_assembly"]["wheel"]["radius"] #radius of the wheels
+  w_out = v/r #W_out is the roational speed of the wheels
+  w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
+  return w_in 
 
 def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experiment: dict):
+  """
+  Docstring for rover_dynamics
   
-   return dydt
+  :param t: The time sample in seconds
+  :type t: Scalar
+  :param y: A 2 array of the rover's translational velocity and position in (m/s) and (m)
+  :type y: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  :param planet: All planet data
+  :type planet: dict
+  :param experiment: All experiment data
+  :type experiment: dict
+  """
+
+  '''Returns the time derivative of the rover's translational velocity and position in (m/s^2) and (m/s) given the time, the rover's translational velocity and position, the rover data, the planet data, and the experiment data'''
+
+  #input validation
+  return dydt
 
 def mechpower(v: np.ndarray, rover: dict):
-   
-   return P
+  """
+  Docstring for mechpowe
+  
+  :param v: A 1 array of the rover's translational velocity in (m/s)
+  :type v: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  """
+
+  '''Returns the mechanical power output of the motor in (W) given the translational velocity of the rover in (m/s) and the rover data'''
+
+  #input validation
+  return P
 
 def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
-   
-   return E
+  """
+  Docstring for battenergy
+  
+  :param t: An array of time samples in seconds
+  :type t: np.ndarray
+  :param v: An array of the rover's translational velocity in (m/s)
+  :type v: np.ndarray
+  :param rover: All rover data
+  :type rover: dict
+  """
+
+  '''Returns the energy consumed by the battery in (J) given an array of time samples, an array of the rover's translational velocity, and the rover data'''
+
+  #input validation
+  if np.size(t) != np.size(v):
+    raise Exception("Time and velocity arrays must be the same length")
+  if not isinstance(rover, dict):
+    raise Exception("Rover should be a dict")
+  
+  #Calculates the energy consumed by the battery using the formula E = P * dt, where P is the mechanical power output of the motor and dt is the time step between each time sample
+  t = tau_dcmotor(rover["wheel_assembly"]["omega"],rover["wheel_assembly"]["motor"]) #calulates the value of our tau values
+  P = mechpower(v, rover)
+
+  
+  return E
 
 def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict):
-   
-   return rover
+  """
+  Docstring for simulate_rover
+  
+  :param rover: All rover data
+  :type rover: dict
+  :param planet: All planet data
+  :type planet: dict
+  :param experiment: All experiment data
+  :type experiment: dict
+  :param end_event: All end event Conditions
+  :type end_event: dict
+  """
+
+  '''Returns all rover data from the experiment'''
+
+  #input validation
+  return rover
