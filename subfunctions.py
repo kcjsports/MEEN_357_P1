@@ -345,4 +345,14 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   '''Returns all rover data from the experiment'''
 
   #input validation
+  if not isinstance(rover, dict):
+    raise Exception("Rover should be a dict")
+  if not isinstance(planet, dict):
+    raise Exception("Planet should be a dict")
+  if not isinstance(experiment, dict):
+    raise Exception("Experiment should be a dict")
+  if not isinstance(end_event, dict):
+    raise Exception("End event should be a dict")
+  
+  integrate.solve_ivp(lambda t, y: rover_dynamics(t, y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], events=lambda t, y: [y[1] - end_event["max_distance"], t - end_event["max_time"], y[0] - end_event["max_velocity"]], method = 'RK45')
   return rover
