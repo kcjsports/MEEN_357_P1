@@ -2,15 +2,17 @@ import numpy as np
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 import subfunctions as sf
+from Marvin import Marvin
 
 #function that gets fed to the root finder
 def f(o, ta, r, p, Crr = 0.15):
     return sf.F_net(np.array([o]), np.array([ta]), r, p, Crr)
 
 #Imported variables
-motor = sf.Marvin["rover"]["wheel_assembly"]["motor"]
-rover = sf.Marvin["rover"]
-planet = sf.Marvin["planet"]
+motor = Marvin["rover"]["wheel_assembly"]["motor"]
+rover = Marvin["rover"]
+planet = Marvin["planet"]
+
 #variables
 omega = np.linspace(0, motor['speed_noload'], 25) #array of our omega 
 Crr = 0.15

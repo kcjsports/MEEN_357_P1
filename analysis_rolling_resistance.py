@@ -2,21 +2,24 @@ import numpy as np
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 import subfunctions as sf
+from Marvin import Marvin
 
 #function that gets fed to the root finder
 def f(o, ta, r, p, Crr = 0.15):
     return sf.F_net(np.array([o]), np.array([ta]), r, p, Crr)
 
 #Imported variables
-motor = sf.Marvin["rover"]["wheel_assembly"]["motor"]
-rover = sf.Marvin["rover"]
-planet = sf.Marvin["planet"]
+motor = Marvin["rover"]["wheel_assembly"]["motor"]
+rover = Marvin["rover"]
+planet = Marvin["planet"]
+wheel_radius = Marvin["rover"]["wheel_assembly"]["wheel"]["radius"]
+
 #variables
 omega = np.linspace(0, motor['speed_noload'], 25) #array of our omega 
 Crr_array = np.linspace(0.01,0.5,25)
 slope_array_deg = np.zeros(25)
 v_max = np.ndarray(25)
-wheel_radius = sf.Marvin["rover"]["wheel_assembly"]["wheel"]["radius"]
+
 
 #finds v_max at each slope
 for i in range(25):

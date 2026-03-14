@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from subfunctions import tau_dcmotor, Marvin
+from subfunctions import tau_dcmotor
+from Marvin import Marvin
 
 motor = Marvin["rover"]["wheel_assembly"]["motor"]
 N = 25 #our number of data point
