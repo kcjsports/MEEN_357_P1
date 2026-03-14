@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from subfunctions import tau_dcmotor, get_gear_ratio
-from Marvin import Marvin
+from subfunctions import Marvin
 
 motor = Marvin["rover"]["wheel_assembly"]["motor"]
 N = 25 #our number of data point
