@@ -1,18 +1,23 @@
 import numpy as np
 import numbers
 from math import erf
+from Marvin import Marvin as m
 
 def tau_dcmotor(omega: np.ndarray, motor:dict):
-  """
-  Docstring for taudc_motor
-  
-  :param omega: An array of shaft speeds
-  :type omega: np.ndarray
-  :param motor: contains important 
-  :type motor: dict
-  """
+  """_summary_
 
-  '''Returns the motor shaft torque in (Nm) given shaft speed, omeaga, in (rad/s)'''
+  Args:
+      omega (np.ndarray): _description_
+      motor (dict): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+      
+  """
 
 #validates that the inputs are the correct data type
   if not isinstance(omega, np.ndarray):
@@ -31,6 +36,19 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
   return tau
 
 def get_gear_ratio(speed_reducer: dict):
+  """_summary_
+
+  Args:
+      speed_reducer (dict): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
   if not isinstance(speed_reducer, dict):
         raise Exception("Expected speed_reducer to be a dictionary.")
   if "type" not in speed_reducer:
@@ -41,6 +59,17 @@ def get_gear_ratio(speed_reducer: dict):
   return Ng
 
 def get_mass(rover: dict):
+  """_summary_
+
+  Args:
+      rover (dict): _description_
+
+  Raises:
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
   if not isinstance(rover, dict):
         raise Exception("Expected rover to be a dictionary.")
   m_chassis = rover["chassis"]["mass"]
@@ -53,6 +82,19 @@ def get_mass(rover: dict):
   return m
 
 def F_drive(omega: np.ndarray, rover: dict):
+  """_summary_
+
+  Args:
+      omega (np.ndarray): _description_
+      rover (dict): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
   if not isinstance(omega, np.ndarray):
     raise Exception("input speed should be a scalar or array")
   if not isinstance(rover, dict):
@@ -63,6 +105,20 @@ def F_drive(omega: np.ndarray, rover: dict):
   return Fd
 
 def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
+  """_summary_
+
+  Args:
+      terrain_angle (np.ndarray): _description_
+      rover (dict): _description_
+      planet (dict): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
   #input validation
   if not isinstance(terrain_angle, np.ndarray) and not isinstance(rover, dict) or not isinstance(planet, dict):
     raise Exception("Inputs are not the right data type.")
@@ -77,6 +133,25 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
   return Fgt
 
 def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr):
+  """_summary_
+
+  Args:
+      omega (np.ndarray): _description_
+      terrain_angle (np.ndarray): _description_
+      rover (dict): _description_
+      planet (dict): _description_
+      Crr (_type_): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
   #input validation
   if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
      raise Exception("Args 1/2 should be np.ndarray.")
@@ -101,6 +176,25 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
 
 
 def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dict, Crr: float):
+  """_summary_
+
+  Args:
+      omega (np.ndarray): _description_
+      terrain_angle (np.ndarray): _description_
+      rover (dict): _description_
+      planet (dict): _description_
+      Crr (float): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
   if not isinstance(omega, np.ndarray) or not isinstance(terrain_angle, np.ndarray):
      raise Exception("Args 1/2 should be np.ndarray.")
   if not isinstance(rover, dict) or not isinstance(planet, dict):
@@ -120,19 +214,34 @@ def F_net(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet: dic
   return Fnet
 
 def motorW(v: np.ndarray, rover: dict):
+  """_summary_
+
+  Args:
+      v (np.ndarray): _description_
+      rover (dict): _description_
+
+  Raises:
+      Exception: _description_
+      Exception: _description_
+      Exception: _description_
+
+  Returns:
+      _type_: _description_
+  """
    #input validation
-   if not isinstance(v, (np.ndarray, numbers.Number)):
+  if not isinstance(v, (np.ndarray, numbers.Number)):
       raise Exception("The rotaional velocity of the rover must be in the form of a scalar or a vector")
-   if isinstance(v, np.ndarray) and v.ndim == 1:
+  if isinstance(v, np.ndarray) and not v.ndim == 1:
       raise Exception("The rotaional velocity vector must only have one row")
-   if isinstance(rover, dict):
+  if not isinstance(rover, dict):
       raise Exception("The rover input must be a dictonary")
   
    #caluates and returns the rotional speed of the shaft
-   r = rover["wheel_assembly"]["wheel"]["radius"] #radius of the wheels
-   w_out = v/r #W_out is the roational speed of the wheels
-   w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
-   return w_in 
+  r = rover["wheel_assembly"]["wheel"]["radius"] #radius of the wheels
+  w_out = v/r #W_out is the roational speed of the wheels
+  w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
+  return w_in 
+
 
 def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experiment: dict):
   
