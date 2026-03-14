@@ -280,7 +280,7 @@ def motorW(v: np.ndarray, rover: dict):
    #input validation
   if not isinstance(v, (np.ndarray, numbers.Number)):
     raise Exception("The rotaional velocity of the rover must be in the form of a scalar or a vector")
-  if isinstance(v, np.ndarray) and v.ndim == 1:
+  if isinstance(v, np.ndarray) and not v.ndim == 1:
     raise Exception("The rotaional velocity vector must only have one row")
   if not isinstance(rover, dict):
     raise Exception("The rover input must be a dictonary")
@@ -290,7 +290,6 @@ def motorW(v: np.ndarray, rover: dict):
   w_out = v/r #W_out is the roational speed of the wheels
   w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
   return w_in 
-
 
 def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experiment: dict):
   """
