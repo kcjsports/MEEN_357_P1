@@ -18,8 +18,6 @@ Marvin = {
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
     },
     "planet" : {"g" : 3.72},
-    "experiment" : {'time_range' : np.array([0,20000]), 'initial_conditions' : np.array([0.325,0]), 'alpha_dist' : np.array([0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]), 'alpha_deg' : np.array([2.032, 11.509, 2.478, 7.182, 5.511, 10.981, 5.601, -0.184, 0.714, 4.151, 4.042]), 'Crr' : 0.1},
-    "end_event" : {"max_distance" : 50, "max_time" : 5000, "max_velocity" : 0.01}
 }
 
 

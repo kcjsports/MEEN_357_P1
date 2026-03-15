@@ -9,7 +9,6 @@ from end_of_mission_event import end_of_mission_event
 #Imported variables
 rover = Marvin["rover"]
 planet = Marvin["planet"]
-experiment = Marvin["experiment"]
 experiment, end_event = define_experiment()
 events = end_of_mission_event(end_event)
 
