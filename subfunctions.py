@@ -308,8 +308,19 @@ def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experimen
 
   '''Returns the time derivative of the rover's translational velocity and position in (m/s^2) and (m/s) given the time, the rover's translational velocity and position, the rover data, the planet data, and the experiment data'''
   #input validation
+  if not isinstance(t, numbers.Number):
+    raise Exception("Time must be a scalar")
+  if not isinstance(y, np.ndarray):
+    raise Exception("The state vector must be a numpy array")
+  if not isinstance(rover, dict):
+    raise Exception("Rover should be a dict")
+  if not isinstance(planet, dict):
+    raise Exception("Planet should be a dict") 
+  if not isinstance(experiment, dict):
+    raise Exception("Experiment should be a dict")
 
   #original data interpolated between useing an cubic spline
+
   alpha_fun = interp1d(experiment['alpha_dist'], experiment['alpha_deg'], kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
   terrain_angle = alpha_fun(y[1])
   
@@ -330,6 +341,11 @@ def mechpower(v: np.ndarray, rover: dict):
   '''Returns the mechanical power output of the motor in (W) given the translational velocity of the rover in (m/s) and the rover data'''
 
   #input validation
+  if not isinstance(v, np.ndarray):
+    raise Exception("The translational velocity of the rover must be in the form of a scalar or a vector")
+  if not isinstance(rover, dict):
+    raise Exception("The rover input must be a dictonary")
+
   return P
 
 def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
