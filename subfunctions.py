@@ -153,6 +153,7 @@ def F_gravity(terrain_angle: np.ndarray, rover: dict, planet: dict):
   if not isinstance(terrain_angle, (np.ndarray, numbers.Number)) and not isinstance(rover, dict) or not isinstance(planet, dict):
     raise Exception("Inputs are not the right data type.")
   if isinstance(terrain_angle, np.ndarray):
+     print("true")
      if min(terrain_angle) < -75 or max(terrain_angle) > 75:
       raise Exception("To steep")
   elif terrain_angle < -75 or terrain_angle > 75:
@@ -322,7 +323,8 @@ def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experimen
 
   #original data interpolated between useing an cubic spline
   alpha_fun = interp1d(experiment['alpha_dist'], experiment['alpha_deg'], kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
-  terrain_angle = alpha_fun(y[1]) #terrain angle at state vector
+  terrain_angle = alpha_fun(y[1]).item() #terrain angle at state vector
+  print(terrain_angle)
 
   #caluates the acceleration and velocity at the state vector
   acel = (1/get_mass(rover))*F_net(motorW(y[0], rover), terrain_angle, rover, planet, experiment["Crr"])
@@ -331,6 +333,8 @@ def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experimen
   dydt = np.array([acel, vcel])
 
   return dydt
+ex = experiment1()
+print(rover_dynamics(1, np.array([12,2]), Marvin["rover"], Marvin["planet"], ex[0]))
 
 
 def mechpower(v: np.ndarray, rover: dict):
