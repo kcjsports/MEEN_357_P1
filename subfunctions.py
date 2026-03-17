@@ -358,9 +358,6 @@ def mechpower(v: np.ndarray, rover: dict):
     raise Exception("The rotaional velocity vector must only have one row")
   if not isinstance(rover, dict):
     raise Exception("The rover input must be a dictonary")
-  
-  print(tau_dcmotor(motorW(v,rover), rover["wheel_assembly"]["motor"]))
-  print(motorW(v,rover))
      
   P = tau_dcmotor(motorW(v,rover), rover["wheel_assembly"]["motor"]) * motorW(v,rover) #computes the mechaincal energy for one wheel
   
