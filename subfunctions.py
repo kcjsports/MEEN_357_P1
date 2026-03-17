@@ -37,6 +37,8 @@ def tau_dcmotor(omega: np.ndarray, motor:dict):
 #input validation
   if not isinstance(omega, (np.ndarray, numbers.Number)):
     raise Exception("input speed should be a scalar or array")
+  if isinstance(omega, np.ndarray) and not omega.ndim == 1:
+    raise Exception("The rotaional velocity vector must only have one row")
   if not isinstance(motor, dict):
     raise Exception("Arg 2 should be dict")
   
