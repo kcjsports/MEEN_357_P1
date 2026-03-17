@@ -354,8 +354,13 @@ def mechpower(v: np.ndarray, rover: dict):
   if not isinstance(rover, dict):
     raise Exception("The rover input must be a dictonary")
   
+  if isinstance(v, np.ndarray):
+     P = np.zeros(v.size)
+     for i in range(v.size):
+      P[i] = tau_dcmotor(v[i], rover["wheel_assembly"]["motor"]) * motorW(v[i],rover) #computes the mechaincal energy for one wheel
+     return P
+     
   P = tau_dcmotor(v, rover["wheel_assembly"]["motor"]) * motorW(v,rover) #computes the mechaincal energy for one wheel
-
   return P
 
 
