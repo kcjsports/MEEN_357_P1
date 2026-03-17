@@ -3,6 +3,7 @@ import numbers
 from math import erf
 import scipy.integrate as integrate
 from scipy.interpolate import interp1d
+from define_experiment import experiment1 
 
 Marvin = {
   #contains dictionarys about the rover
@@ -296,7 +297,7 @@ def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experimen
   
   :param t: The time sample in seconds
   :type t: Scalar
-  :param y: A 2 array of the rover's translational velocity and position in (m/s) and (m)
+  :param y: The state vector, a 2 array of the rover's translational velocity and position in (m/s) and (m)
   :type y: np.ndarray
   :param rover: All rover data
   :type rover: dict
@@ -320,17 +321,21 @@ def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experimen
     raise Exception("Experiment should be a dict")
 
   #original data interpolated between useing an cubic spline
-
   alpha_fun = interp1d(experiment['alpha_dist'], experiment['alpha_deg'], kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
-  terrain_angle = alpha_fun(y[1])
+  terrain_angle = alpha_fun(y[1]) #terrain angle at state vector
+
+  #caluates the acceleration and velocity at the state vector
+  acel = (1/get_mass(rover))*F_net(motorW(y[0], rover), terrain_angle, rover, planet, experiment["Crr"])
+  vcel = y[1]
   
-  x = np.linspace(experiment['alpha_dist'].min(), experiment['alpha_dist'].max(), 100)
+  dydt = np.array([acel, vcel])
 
   return dydt
 
+
 def mechpower(v: np.ndarray, rover: dict):
   """
-  Docstring for mechpowe
+  Docstring for mechpower
   
   :param v: A 1 array of the rover's translational velocity in (m/s)
   :type v: np.ndarray

@@ -2,10 +2,14 @@ from scipy.interpolate import interp1d
 import subfunctions as sf
 import matplotlib.pyplot as plt
 import numpy as np
+from define_experiment import experiment1 as ex1
+
+#defines the experiment
+ex = ex1()
 
 #original data points
-alpha_dist = sf.Marvin["experiment"]['alpha_dist']
-alpha_deg = sf.Marvin["experiment"]['alpha_deg']
+alpha_dist = ex[0]['alpha_dist']
+alpha_deg = ex[0]['alpha_deg']
 
 #original data interpolated between useing an cubic spline
 alpha_fun = interp1d(alpha_dist, alpha_deg, kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
