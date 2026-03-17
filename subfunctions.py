@@ -348,9 +348,11 @@ def mechpower(v: np.ndarray, rover: dict):
 
   '''Returns the mechanical power output of the motor in (W) given the translational velocity of the rover in (m/s) and the rover data'''
 
-  #input validation
+#input validation
   if not isinstance(v, (np.ndarray, numbers.Number)):
-    raise Exception("The translational velocity of the rover must be in the form of a scalar or a vector")
+    raise Exception("The rotaional velocity of the rover must be in the form of a scalar or a vector")
+  if isinstance(v, np.ndarray) and not v.ndim == 1:
+    raise Exception("The rotaional velocity vector must only have one row")
   if not isinstance(rover, dict):
     raise Exception("The rover input must be a dictonary")
   
