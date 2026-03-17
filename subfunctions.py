@@ -292,6 +292,7 @@ def motorW(v: np.ndarray, rover: dict):
   r = rover["wheel_assembly"]["wheel"]["radius"] #radius of the wheels
   w_out = v/r #W_out is the roational speed of the wheels
   w_in = w_out * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #W_out is the roational speed of the shaft
+ 
   return w_in 
 
 def rover_dynamics(t: float, y: np.ndarray, rover: dict, planet: dict, experiment: dict):
@@ -358,15 +359,12 @@ def mechpower(v: np.ndarray, rover: dict):
   if not isinstance(rover, dict):
     raise Exception("The rover input must be a dictonary")
   
-  if isinstance(v, np.ndarray):
-     P = np.zeros(v.size)
-     for i in range(v.size):
-      P[i] = tau_dcmotor(v[i], rover["wheel_assembly"]["motor"]) * motorW(v[i],rover) #computes the mechaincal energy for one wheel
-     return P
+  print(tau_dcmotor(motorW(v,rover), rover["wheel_assembly"]["motor"]))
+  print(motorW(v,rover))
      
-  P = tau_dcmotor(v, rover["wheel_assembly"]["motor"]) * motorW(v,rover) #computes the mechaincal energy for one wheel
+  P = tau_dcmotor(motorW(v,rover), rover["wheel_assembly"]["motor"]) * motorW(v,rover) #computes the mechaincal energy for one wheel
+  
   return P
-
 
 def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
   """
