@@ -349,15 +349,15 @@ def mechpower(v: np.ndarray, rover: dict):
   '''Returns the mechanical power output of the motor in (W) given the translational velocity of the rover in (m/s) and the rover data'''
 
   #input validation
-  if not isinstance(v, np.ndarray):
+  if not isinstance(v, (np.ndarray, numbers.Number)):
     raise Exception("The translational velocity of the rover must be in the form of a scalar or a vector")
   if not isinstance(rover, dict):
     raise Exception("The rover input must be a dictonary")
   
-
-  P = tau_dcmotor(v, rover) * motorW(v,rover) #computes the mechaincal energy for one wheel
+  P = tau_dcmotor(v, rover["wheel_assembly"]["motor"]) * motorW(v,rover) #computes the mechaincal energy for one wheel
 
   return P
+
 
 def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
   """
