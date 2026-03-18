@@ -12,7 +12,7 @@ Marvin = {
           "wheel" : {"radius" : 0.3 , "mass" : 1.0}, #radius - m, mass - kg
           "speed_reducer" : {"type" : "reverted", "diam_pinion" : 0.04, "diam_gear" : 0.07, "mass" : 1.5}, 
           "motor": {"torque_stall" : 170, "torque_noload" : 0, "speed_noload" : 3.80, "mass" : 5.0, "effcy_tau" : np.array([0, 10, 20, 40, 70, 165]), "effcy" : np.array([0, 0.60, 0.78, 0.73, 0.53, 0.04])},
-          "telemetry" : {"time" : 0, "completition_time" : 0, "velocity" : 0, "position": 0, "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": 0, "battery_energy": 0, "energy_per_distance": 0}
+          "telemetry" : {"time" : np.empty(1), "completition_time" : 0, "velocity" : np.empty(1), "position": np.empty(1), "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": np.empty(1), "battery_energy": 0, "energy_per_distance": 0}
         },
         "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
@@ -418,5 +418,8 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   if not isinstance(end_event, dict):
     raise Exception("End event should be a dict")
   
-  integrate.solve_ivp(lambda t, y: rover_dynamics(t, y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], events=lambda t, y: [y[1] - end_event["max_distance"], t - end_event["max_time"], y[0] - end_event["max_velocity"]], method = 'RK45')
+  #
+  pos =
+  vel = 
+  
   return rover

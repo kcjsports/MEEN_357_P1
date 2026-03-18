@@ -2,25 +2,38 @@ import numpy as np
 import matplotlib.pyplot as plt
 from subfunctions import Marvin
 import subfunctions as sf
-from define_experiment import define_experiment
+from define_experiment import experiment1
 from end_of_mission_event import end_of_mission_event
 
 
 #Imported variables
 rover = Marvin["rover"]
 planet = Marvin["planet"]
-experiment, end_event = define_experiment()
+telemetry = rover["telemetry"]
+experiment, end_event = experiment1()
 events = end_of_mission_event(end_event)
 
-pos = np.ndarray()
-vel = np.ndarray()
-acel = np.ndarray()
-for time in experiment["time_range"]:
-  rover["telemetry"] = sf.simulate_rover(rover,planet,experiment,end_event)
-  pos = np.append(pos, rover["telemetry"]["position"])
-  vel = np.append(vel, rover["telemetry"]["velocity"])
-  acel = np.append(acel, rover["telemetry"]["acceleration"])
+#Array Telemetry
 
+for time in experiment["time_range"]:
+  pos, vel = sf.simulate_rover(rover,planet,experiment,end_event)
+  telemetry["position"] = np.append(telemetry["position"], pos)
+  telemetry["velocity"] = np.append(telemetry["velocity"], vel)
+  telemetry["Power"] = np.append(telemetry["Power"], 6 * sf.mechpower(telemetry["velocity"][-1], rover))
+  telemetry["time"] = np.append(telemetry["time"], time)
+  if time > end_event["max_time"] or telemetry["position"][-1] > end_event["max_distance"] or telemetry["velocity"][-1] < end_event["min_velocity"]:
+    break
+
+#Non-array Telemetry
+
+telemetry["distance_traveled"] = telemetry["position"][-1]
+telemetry["max_velocity"] = np.max(telemetry["velocity"])
+telemetry["average_velocity"] = telemetry["distance_traveled"] / telemetry["time"][-1]
+telemetry["battery_energy"] = sf.battenergy(telemetry["time"],telemetry["velocity"], rover):
+telemetry["energy_per_distance"] = telemetry["battery_energy"] / telemetry["distance_traveled"]
+telemetry["completition_time"] = telemetry["time"][-1]
+
+#Graphs 
 
 plt.rcParams["font.family"] = "serif"
 
