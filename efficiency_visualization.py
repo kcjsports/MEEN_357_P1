@@ -15,6 +15,6 @@ y = effcy_fun(x)*100
 plt.plot(x,y)
 plt.plot(effcy_tau, effcy*100, marker = "*")
 plt.xlabel('Torque (N-m)')
-plt.ylabel('efficiency (%)')
-plt.title('Vizualization of the Experiment Terrain')
+plt.ylabel('Efficiency (%)')
+plt.title('Efficiency of the DC Motor')
 plt.show()
