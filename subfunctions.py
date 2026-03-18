@@ -12,13 +12,14 @@ Marvin = {
           "wheel" : {"radius" : 0.3 , "mass" : 1.0}, #radius - m, mass - kg
           "speed_reducer" : {"type" : "reverted", "diam_pinion" : 0.04, "diam_gear" : 0.07, "mass" : 1.5}, 
           "motor": {"torque_stall" : 170, "torque_noload" : 0, "speed_noload" : 3.80, "mass" : 5.0, "effcy_tau" : np.array([0, 10, 20, 40, 70, 165]), "effcy" : np.array([0, 0.60, 0.78, 0.73, 0.53, 0.04])},
-          "telemetry" : {"time" : np.empty(1), "completition_time" : 0, "velocity" : np.empty(1), "position": np.empty(1), "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": np.empty(1), "battery_energy": 0, "energy_per_distance": 0}
         },
         "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
+        "telemetry" : {"time" : np.empty(1), "completition_time" : 0, "velocity" : np.empty(1), "position": np.empty(1), "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": np.empty(1), "battery_energy": 0, "energy_per_distance": 0}, #Telemetry
     },
     "planet" : {"g" : 3.72},
+    
 }
 
 
@@ -389,7 +390,7 @@ def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
   tau = tau_dcmotor(omega,rover["wheel_assembly"]["motor"]) #calulates the value of our tau values
   effcy_tau = rover["wheel_assembly"]["motor"]["effcy_tau"]
   effcy = rover["wheel_assembly"]["motor"]["effcy"]
-  E = integrate.quad(lambda x: np.interp(tau[x], effcy_tau, effcy) * x, t[0], t[-1]) 
+  E = integrate.solve_ivp(lambda x: np.interp(x, effcy_tau, effcy) * x, t[0], t[-1]) 
   return 6 * E
 
 def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict):
@@ -407,6 +408,7 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   """
 
   '''Returns all rover data from the experiment'''
+  telemetry = rover["telemetry"]
 
   #input validation
   if not isinstance(rover, dict):
@@ -418,8 +420,26 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   if not isinstance(end_event, dict):
     raise Exception("End event should be a dict")
   
-  #
-  pos =
-  vel = 
-  
+  #Array Telemetry
+
+  for time in experiment["time_range"]:
+    pos = integrate.solve_ivp(lambda y: rover_dynamics(0, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[1][-1]
+    vel = integrate.solve_ivp(lambda y: rover_dynamics(0, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[0][-1]
+    telemetry["position"] = np.append(telemetry["position"], pos)
+    telemetry["velocity"] = np.append(telemetry["velocity"], vel)
+    telemetry["Power"] = np.append(telemetry["Power"], 6 * mechpower(telemetry["velocity"][-1], rover))
+    telemetry["time"] = np.append(telemetry["time"], time)
+    if time > end_event["max_time"] or telemetry["position"][-1] > end_event["max_distance"] or telemetry["velocity"][-1] < end_event["min_velocity"]:
+      break
+
+  #Non-array Telemetry
+
+  telemetry["distance_traveled"] = telemetry["position"][-1]
+  telemetry["max_velocity"] = np.max(telemetry["velocity"])
+  telemetry["average_velocity"] = telemetry["distance_traveled"] / telemetry["time"][-1]
+  telemetry["battery_energy"] = battenergy(telemetry["time"],telemetry["velocity"], rover)
+  telemetry["energy_per_distance"] = telemetry["battery_energy"] / telemetry["distance_traveled"]
+  telemetry["completition_time"] = telemetry["time"][-1]
+   
+  rover["telemetry"] = telemetry
   return rover
