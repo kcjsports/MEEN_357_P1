@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 from define_experiment import experiment1 
 
 Marvin = {
-  #contains dictionarys about the rover
+  #contains dictionaries about the rover
     "rover" : {
         "wheel_assembly" : { #contains definition about the rovers wheels inculuding details of what drives them
           "wheel" : {"radius" : 0.3 , "mass" : 1.0}, #radius - m, mass - kg
@@ -390,7 +390,7 @@ def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
   tau = tau_dcmotor(omega,rover["wheel_assembly"]["motor"]) #calulates the value of our tau values
   effcy_tau = rover["wheel_assembly"]["motor"]["effcy_tau"]
   effcy = rover["wheel_assembly"]["motor"]["effcy"]
-  E = integrate.solve_ivp(lambda x: np.interp(x, effcy_tau, effcy) * x, t[0], t[-1]) 
+  E = integrate.solve_ivp(lambda x: np.interp(x, effcy_tau, effcy) * P, (t[0], t[-1])) 
   return 6 * E
 
 def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict):
@@ -422,15 +422,16 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   
   #Array Telemetry
 
-  for time in experiment["time_range"]:
-    pos = integrate.solve_ivp(lambda y: rover_dynamics(0, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[1][-1]
-    vel = integrate.solve_ivp(lambda y: rover_dynamics(0, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[0][-1]
-    telemetry["position"] = np.append(telemetry["position"], pos)
-    telemetry["velocity"] = np.append(telemetry["velocity"], vel)
-    telemetry["Power"] = np.append(telemetry["Power"], 6 * mechpower(telemetry["velocity"][-1], rover))
-    telemetry["time"] = np.append(telemetry["time"], time)
-    if time > end_event["max_time"] or telemetry["position"][-1] > end_event["max_distance"] or telemetry["velocity"][-1] < end_event["min_velocity"]:
-      break
+  # for time in experiment["time_range"]:
+  #   pos = integrate.solve_ivp(lambda y: rover_dynamics(time, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[1][-1]
+  #   vel = integrate.solve_ivp(lambda y: rover_dynamics(0, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[0][-1]
+  #   telemetry["position"] = np.append(telemetry["position"], pos)
+  #   telemetry["velocity"] = np.append(telemetry["velocity"], vel)
+  #   telemetry["Power"] = np.append(telemetry["Power"], 6 * mechpower(telemetry["velocity"][-1], rover))
+  #   telemetry["time"] = np.append(telemetry["time"], time)
+  #   if time > end_event["max_time"] or telemetry["position"][-1] > end_event["max_distance"] or telemetry["velocity"][-1] < end_event["min_velocity"]:
+  #     break
+
 
   #Non-array Telemetry
 
