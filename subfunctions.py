@@ -390,7 +390,7 @@ def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
   tau = tau_dcmotor(omega,rover["wheel_assembly"]["motor"]) #calulates the value of our tau values
   effcy_tau = rover["wheel_assembly"]["motor"]["effcy_tau"]
   effcy = rover["wheel_assembly"]["motor"]["effcy"]
-  E = integrate.solve_ivp(lambda x: np.interp(x, effcy_tau, effcy) * P, (t[0], t[-1])) 
+  E = integrate.solve_ivp(lambda x: np.interp(tau[x], effcy_tau, effcy) * P, (t[0], t[-1])) 
   return 6 * E
 
 def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict):
