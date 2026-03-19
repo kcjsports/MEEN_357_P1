@@ -13,7 +13,7 @@ telemetry = rover["telemetry"]
 experiment, end_event = experiment1()
 events = end_of_mission_event(end_event)
 
-rover = sf.simulate_rover(rover, planet, experiment, end_event) #simulate the rover's motion and store the telemetry data in the rover structure
+rover = sf.simulate_rover(rover, planet, experiment, events) #simulate the rover's motion and store the telemetry data in the rover structure
 telemetry = rover["telemetry"]
 
 #Graphs 

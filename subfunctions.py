@@ -427,7 +427,7 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
     raise Exception("Experiment should be a dict")
   if not isinstance(end_event, dict):
     raise Exception("End event should be a dict")
-  sol = integrate.solve_ivp(lambda t,y: rover_dynamics(float(t), y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], method="RK45", events = end_of_mission_event(end_event))
+  sol = integrate.solve_ivp(lambda t,y: rover_dynamics(float(t), y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], method="RK45", events = end_event)
 
   #Telemetry Values
 
