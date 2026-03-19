@@ -439,7 +439,7 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   telemetry["average_velocity"] = telemetry["distance_traveled"] / telemetry["time"][-1]
   telemetry["power"] = 6 * mechpower(telemetry["velocity"], rover)
   telemetry["battery_energy"] = battenergy(telemetry["time"],telemetry["velocity"], rover)
-  telemetry["energy_per_distance"] = telemetry["battery_energy"] / telemetry["distance_traveled"]
+  telemetry["batt_energy_per_distance"] = telemetry["battery_energy"] / telemetry["distance_traveled"]
   
   rover["telemetry"] = telemetry
   return rover

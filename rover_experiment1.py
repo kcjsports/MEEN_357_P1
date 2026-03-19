@@ -42,3 +42,14 @@ axes[2].set_box_aspect(1)
 fig.tight_layout()
 
 plt.show()
+
+# #Telemetry values at the end of the mission
+# print(telemetry["completition_time"])
+# print(telemetry["distance_traveled"])
+# print(telemetry["max_velocity"])
+# print(telemetry["average_velocity"])
+# print(telemetry["battery_energy"])
+# print(telemetry["batt_energy_per_distance"])
+# if telemetry["battery_energy"] < 0.9072e6:
+#   print("Yes, The LiPo works")
+# else: print("No, The LiPo does not work")
