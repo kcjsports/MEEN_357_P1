@@ -3,8 +3,7 @@ import numbers
 from math import erf
 import scipy.integrate as integrate
 from scipy.interpolate import interp1d
-from define_experiment import experiment1 
-from end_of_mission_event import end_of_mission_event
+
 
 Marvin = {
   #contains dictionaries about the rover
