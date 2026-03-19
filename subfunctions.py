@@ -4,6 +4,7 @@ from math import erf
 import scipy.integrate as integrate
 from scipy.interpolate import interp1d
 from define_experiment import experiment1 
+from end_of_mission_event import end_of_mission_event
 
 Marvin = {
   #contains dictionaries about the rover
@@ -16,7 +17,7 @@ Marvin = {
         "chassis": {"mass" : 659},   #define the mass of the chassis of our rover
         "science_payload" : {"mass" : 75},   #define the mass of the chassis
         "power_subsys" : {"mass" : 90},   #define the mass of the chassis
-        "telemetry" : {"time" : np.empty(1), "completition_time" : 0, "velocity" : np.empty(1), "position": np.empty(1), "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "Power": np.empty(1), "battery_energy": 0, "energy_per_distance": 0}, #Telemetry
+        "telemetry" : {"time" : np.empty(1), "completition_time" : 0, "velocity" : np.empty(1), "position": np.empty(1), "distance_traveled": 0, "max_velocity": 0, "average_velocity": 0, "power": np.empty(1), "battery_energy": 0, "energy_per_distance": 0}, #Telemetry
     },
     "planet" : {"g" : 3.72},
     
@@ -426,8 +427,7 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
     raise Exception("Experiment should be a dict")
   if not isinstance(end_event, dict):
     raise Exception("End event should be a dict")
-
-  sol = integrate.solve_ivp(lambda t,y: rover_dynamics(float(t), y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], method="RK45", events = end_event)
+  sol = integrate.solve_ivp(lambda t,y: rover_dynamics(float(t), y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], method="RK45", events = end_of_mission_event(end_event))
 
   #Telemetry Values
 
@@ -438,7 +438,7 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
   telemetry["distance_traveled"] = telemetry["position"][-1]
   telemetry["max_velocity"] = np.max(telemetry["velocity"])
   telemetry["average_velocity"] = telemetry["distance_traveled"] / telemetry["time"][-1]
-  telemetry["Power"] = 6 * mechpower(telemetry["velocity"], rover)
+  telemetry["power"] = 6 * mechpower(telemetry["velocity"], rover)
   telemetry["battery_energy"] = battenergy(telemetry["time"],telemetry["velocity"], rover)
   telemetry["energy_per_distance"] = telemetry["battery_energy"] / telemetry["distance_traveled"]
   
