@@ -14,7 +14,7 @@ alpha_deg = ex[0]['alpha_deg']
 #original data interpolated between useing an cubic spline
 alpha_fun = interp1d(alpha_dist, alpha_deg, kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
 
-#
+#makes the terarain visualization
 x = np.linspace(alpha_dist.min(), alpha_dist.max(), 100)
 y = alpha_fun(x)
 

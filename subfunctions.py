@@ -211,6 +211,7 @@ def F_rolling(omega: np.ndarray, terrain_angle: np.ndarray, rover: dict, planet:
       raise Exception("To steep")
   
   #calculates the rolling force
+  
   if isinstance(omega, np.ndarray):
     m = get_mass(rover)
     Ng = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])

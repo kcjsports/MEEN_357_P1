@@ -22,7 +22,7 @@ p = np.ndarray(N)
 for i in  range(len(omega_out)):
   p[i] = t_out[i]*omega_out[i]
 
-
+#plots
 plt.rcParams["font.family"] = "serif"
 
 fig, axes = plt.subplots(3,1, figsize=(9,9))
