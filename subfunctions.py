@@ -384,13 +384,20 @@ def battenergy(t: np.ndarray, v: np.ndarray, rover: dict):
   if not isinstance(rover, dict):
     raise Exception("Rover should be a dict")
   
-  #
-  P = mechpower(v, rover)
-  omega = v / rover["wheel_assembly"]["wheel"]["radius"] * get_gear_ratio(rover["wheel_assembly"]["speed_reducer"]) #calculates the rotational speed of the shaft
-  tau = tau_dcmotor(omega,rover["wheel_assembly"]["motor"]) #calulates the value of our tau values
+  #Define variables
   effcy_tau = rover["wheel_assembly"]["motor"]["effcy_tau"]
   effcy = rover["wheel_assembly"]["motor"]["effcy"]
-  E = integrate.solve_ivp(lambda x: P[x] / interp1d(effcy_tau, effcy, kind = 'cubic')[tau[x]], (t[0], t[-1])) 
+  Nu = interp1d(effcy_tau, effcy, kind = 'cubic', fill_value='extrapolate') #fit the cubic spline
+
+  #Calulculations
+  P_batt = np.empty(len(t))
+  for i in range(len(t)):
+    P = mechpower(float(v[i]), rover)
+    omega = motorW(float(v[i]), rover) #Calculates the rotational speed of the motor at the velocity v[i]
+    tau = tau_dcmotor(omega,rover["wheel_assembly"]["motor"]) #calulates the value of our tau values
+    eff_actual = Nu(tau)
+    P_batt[i] = P / eff_actual #calculates the battery power at each time step
+  E = integrate.trapezoid(P_batt, t) #integrate the power over time to get energy
   return 6 * E
 
 def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict):
@@ -419,28 +426,21 @@ def simulate_rover(rover: dict, planet: dict, experiment: dict, end_event: dict)
     raise Exception("Experiment should be a dict")
   if not isinstance(end_event, dict):
     raise Exception("End event should be a dict")
-  
-  #Array Telemetry
 
-  # for time in experiment["time_range"]:
-  #   pos = integrate.solve_ivp(lambda y: rover_dynamics(time, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[1][-1]
-  #   vel = integrate.solve_ivp(lambda y: rover_dynamics(0, y, rover, planet, experiment), [0, experiment["time_range"][-1]], experiment["initial_conditions"], events = end_event, max_step = 0.1).y[0][-1]
-  #   telemetry["position"] = np.append(telemetry["position"], pos)
-  #   telemetry["velocity"] = np.append(telemetry["velocity"], vel)
-  #   telemetry["Power"] = np.append(telemetry["Power"], 6 * mechpower(telemetry["velocity"][-1], rover))
-  #   telemetry["time"] = np.append(telemetry["time"], time)
-  #   if time > end_event["max_time"] or telemetry["position"][-1] > end_event["max_distance"] or telemetry["velocity"][-1] < end_event["min_velocity"]:
-  #     break
+  sol = integrate.solve_ivp(lambda t,y: rover_dynamics(float(t), y, rover, planet, experiment), experiment["time_range"], experiment["initial_conditions"], method="RK45", events = end_event)
 
+  #Telemetry Values
 
-  #Non-array Telemetry
-
+  telemetry["time"] = sol.t
+  telemetry["completition_time"] = telemetry["time"][-1]
+  telemetry["velocity"] = sol.y[0,:]
+  telemetry["position"] = sol.y[1,:]
   telemetry["distance_traveled"] = telemetry["position"][-1]
   telemetry["max_velocity"] = np.max(telemetry["velocity"])
   telemetry["average_velocity"] = telemetry["distance_traveled"] / telemetry["time"][-1]
+  telemetry["Power"] = 6 * mechpower(telemetry["velocity"], rover)
   telemetry["battery_energy"] = battenergy(telemetry["time"],telemetry["velocity"], rover)
   telemetry["energy_per_distance"] = telemetry["battery_energy"] / telemetry["distance_traveled"]
-  telemetry["completition_time"] = telemetry["time"][-1]
-   
+  
   rover["telemetry"] = telemetry
   return rover
