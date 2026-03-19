@@ -22,9 +22,9 @@ plt.rcParams["font.family"] = "serif"
 
 fig, axes = plt.subplots(3,1, figsize=(9,9))
 
-axes[0].plot(telemetry["time"], telemetry["position"]); axes[0].set_title("Motor - Torque vs. Speed")
-axes[1].plot(telemetry["time"], telemetry["velocity"]); axes[1].set_title("Motor - Torque vs. Power")
-axes[2].plot(telemetry["time"], telemetry["power"]); axes[2].set_title("Motor - Speed vs. Power")
+axes[0].plot(telemetry["time"], telemetry["position"]); axes[0].set_title("Time vs. Position")
+axes[1].plot(telemetry["time"], telemetry["velocity"]); axes[1].set_title("Time vs. Velocity")
+axes[2].plot(telemetry["time"], telemetry["power"]); axes[2].set_title("Time vs. Power")
 
 axes[0].set_xlabel('Time (s)')
 axes[1].set_xlabel('Time (s)')
