@@ -29,9 +29,9 @@ def define_edl_system_1():
               'structure_mass' : 8.0,                 # [kg] everything not fuel
               'initial_fuel_mass' : 230.0,            # [kg]  230.0
               'fuel_mass' : 230.0,                    # [kg] current fuel mass (<= initial)
-              'effective_exhaust_velocity' : 4500.0,  # [m/s]
-              'max_thrust' : 3100.0,                  # [N]  
-              'min_thrust' : 40.0}                    # [N]
+              'effective_exhaust_velocity' : 4500.0,  # [m/s] Velocity of fuel/air leaving the rocket
+              'max_thrust' : 3100.0,                  # [N] Peak thrust of burning rocket
+              'min_thrust' : 40.0}                    # [N] Minimal thrust of buring rocket
         
     speed_control = {'on' : False,             # indicates whether control mode is activated
                      'Kp' : 2000,              # proportional gain term
@@ -49,7 +49,7 @@ def define_edl_system_1():
     sky_crane = {'on' : False,            # true means lowering rover mode
                  'danger_altitude' : 4.5, # [m] altitude at which considered too low for safe rover touch down
                  'danger_speed' : -1.0,   # [m/s] speed at which rover would impact to hard on surface
-                 'mass' : 35.0,           # [kg]
+                 'mass' : 35.0,           # [kg] Mass of sky crane
                  'area' : 16.0,           # [m^2] frontal area for drag calculations
                  'Cd' : 0.9,              # [-] coefficient of drag
                  'max_cable' : 7.6,       # [m] max length of cable for lowering rover
@@ -58,23 +58,23 @@ def define_edl_system_1():
     # Heat shield dict
     heat_shield = {'ejected' : False,  # true means heat shield has been ejected from system
                    'mass' : 225.0,     # [kg] mass of heat shield
-                   'diameter' : 4.5,   # [m]
-                   'Cd' : 0.35}        # [-]
+                   'diameter' : 4.5,   # [m] Diameter of heat shield
+                   'Cd' : 0.35}        # [-] Coefficient of drag
         
     rover = define_rover_4()
         
     # pack everything together and clean up subdicts.
-    edl_system = {'altitude' : np.NaN,   # system state variable that is updated throughout simulation
-                  'velocity' : np.NaN,   # system state variable that is updated throughout simulation
-                  'num_rockets' : 8,     # system level parameter
-                  'volume' :150,         # system level parameter
-                  'parachute' : parachute,
-                  'heat_shield' : heat_shield,
-                  'rocket' : rocket,
-                  'speed_control' : speed_control,
-                  'position_control' : position_control,
-                  'sky_crane' : sky_crane,
-                  'rover' : rover}
+    edl_system = {'altitude' : np.NaN,   # Altitude system state variable that is updated throughout simulation
+                  'velocity' : np.NaN,   # Velocity system state variable that is updated throughout simulation
+                  'num_rockets' : 8,     # system level parameter of edl
+                  'volume' :150,         # system level parameter of edl
+                  'parachute' : parachute, # See parachute
+                  'heat_shield' : heat_shield, # See heat_shield
+                  'rocket' : rocket, # See rocket
+                  'speed_control' : speed_control, # See speed_control
+                  'position_control' : position_control, # See position_control
+                  'sky_crane' : sky_crane, # See sky_crane
+                  'rover' : rover} # See rover
         
     #del parachute, rocket, speed_control, position_control, sky_crane
     #del heat_shield, rover

@@ -9,19 +9,19 @@ import numpy as np
 
 def define_planet():
 
-    high_altitude = {'temperature' : lambda altitude: -23.4 - 0.00222*altitude, # [C]
-                     'pressure' : lambda altitude: 0.699*np.exp(-0.00009*altitude)} # [KPa]
+    high_altitude = {'temperature' : lambda altitude: -23.4 - 0.00222*altitude, # [C] Temperature calculation at high altitudes on Mars
+                     'pressure' : lambda altitude: 0.699*np.exp(-0.00009*altitude)} # [KPa] Pressure calculation at high altitudes on Mars
                                                                 
-    low_altitude = {'temperature' : lambda altitude: -31 - 0.000998*altitude, # [C]
-                    'pressure' : lambda altitude: 0.699*np.exp(-0.00009*altitude)} # [KPa]
+    low_altitude = {'temperature' : lambda altitude: -31 - 0.000998*altitude, # [C] Temperature calculation at low altitudes on Mars
+                    'pressure' : lambda altitude: 0.699*np.exp(-0.00009*altitude)} # [KPa] Pressure calculation at low altitudes on Mars
     
     density = lambda temperature, pressure: pressure/(0.1921*(temperature+273.15)) # [kg/m^3]
     
-    mars = {'g' : -3.72,   # m/s^2]
-            'altitude_threshold' : 7000, # [m]
-            'low_altitude' : low_altitude, 
-            'high_altitude' : high_altitude,
-            'density' : density}
+    mars = {'g' : -3.72,   # m/s^2] # Gravity on Mars
+            'altitude_threshold' : 7000, # [m] High/low altitude crossover
+            'low_altitude' : low_altitude, # See low_altitude
+            'high_altitude' : high_altitude, # See high_altitude
+            'density' : density} # Air density on mars
     
     #del high_altitude, low_altitude, density
     return mars
