@@ -18,7 +18,8 @@ def define_edl_system_1():
     # Note: we are starting the simulation from the point at which the 
     # parachute is first deployed to keep things simpler.  
     parachute = {'deployed' : True,  # true means it has been deployed but not ejected
-                 'ejected' : False,  # true means parachute no longer is attached to system
+                 'ejected' : False,# true means parachute no longer is attached to system
+                 'ideal' : True,  # true means ay mach speed above 1 the drag relation is assumed to be linear
                  'diameter' : 16.25, # [m] (MSL is about 16 m)
                  'Cd' : 0.615,       # [-] (0.615 is nominal for subsonic)
                  'mass' : 185.0}     # [kg] (this is a wild guess -- no data found)

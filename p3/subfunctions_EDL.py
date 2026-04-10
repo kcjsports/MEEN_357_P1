@@ -96,7 +96,11 @@ def F_drag_descent(edl_system,planet,altitude,velocity):
     # This is the (1/2)*density*velocity^2 part of the drag model. The missing
     # bit is area*Cd, which we'll figure out below.
     rhov2=0.5*density*velocity**2
-    
+
+    #given mach data and dependent MEF data build a fuction for that data
+    m_data = np.array([0.25, 0.5, 0.65, 0.70, 0.8, 0.9, 0.95, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 1.9, 2.0, 2.2, 2.5, 2.6]) #MACH numbers
+    MEF_data = np.array([1,1,1, 0.97, 0.91, 0.72, 0.66, 0.75, 0.9, 0.96, 0.99, 0.999, 0.992, 0.98, 0.91, 0.85, 0.82, 0.75, 0.64, 0.62]) #MEF to corrsponding MACH numbers
+    get_MEF = interp1d(m_data, MEF_data, kind='cubic')
     
     # *************************************
     # Determine which part(s) of the EDL system are contributing to drag
@@ -112,7 +116,16 @@ def F_drag_descent(edl_system,planet,altitude,velocity):
     # if the parachute is in the deployed state, need to account for its area
     # in the drag calculation
     if edl_system['parachute']['deployed'] and not edl_system['parachute']['ejected']:
-        ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*edl_system['parachute']['Cd']
+        if edl_system['parachute']['ideal'] == True:
+            ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*edl_system['parachute']['Cd']
+        else:
+            Mach = v2M_Mars(velocity, altitude) #returns the Mach at the current state
+            if Mach <= 0.25:
+                Cd_mod = edl_system['parachute']['Cd']
+            else:
+                Cd_mod = edl_system['parachute']['Cd'] * get_MEF(Mach)
+            print(Cd_mod)
+            ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*Cd_mod 
     else:
         ACd_parachute = 0.0
     
