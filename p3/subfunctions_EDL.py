@@ -124,7 +124,6 @@ def F_drag_descent(edl_system,planet,altitude,velocity):
                 Cd_mod = edl_system['parachute']['Cd']
             else:
                 Cd_mod = edl_system['parachute']['Cd'] * get_MEF(Mach)
-            print(Cd_mod)
             ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*Cd_mod 
     else:
         ACd_parachute = 0.0

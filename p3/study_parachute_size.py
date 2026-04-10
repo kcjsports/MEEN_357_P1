@@ -31,7 +31,7 @@ for i in range(para_dia.size):
     edl_system['parachute']['ideal'] = False  
     edl_system['rover']['on_ground'] = False # the rover has not yet landed
     edl_system['parachute']['diameter'] = para_dia[i]
-    [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, True)
+    [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, False)
     t_term[i] = t[-1]
     v_touchdown_term[i] = abs(Y[0,-1] + Y[5,-1])
     if Y[1,-1] >= edl_system["sky_crane"]["danger_altitude"] and abs(Y[0,-1] + Y[5,-1]) <= abs(edl_system["sky_crane"]["danger_speed"]):
@@ -51,4 +51,12 @@ axs[2].plot(para_dia,rover_success)
 axs[2].set_title('parachute diameter vs. landing succees', fontsize=10)
 axs[2].grid()
 
+axs[0].set_xlabel('Diameter (m)')
+axs[1].set_xlabel('Diameter (m)')
+axs[2].set_xlabel('Diameter (m)')
+
+axs[0].set_ylabel('Time to land (s)')
+axs[1].set_ylabel('Touchdown Speed (m/s)')
+axs[2].set_ylabel('Succees')
+plt.tight_layout()
 plt.show()
