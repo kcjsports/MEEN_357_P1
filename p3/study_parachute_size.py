@@ -28,7 +28,7 @@ for i in range(para_dia.size):
     edl_system['velocity'] = -590     # [m/s] initial velocity
     edl_system['parachute']['deployed'] = True # our parachute is open
     edl_system['parachute']['ejected'] = False # and still attached
-    edl_system['parachute']['ideal'] = False  
+    edl_system['parachute']['ideal'] = True
     edl_system['rover']['on_ground'] = False # the rover has not yet landed
     edl_system['parachute']['diameter'] = para_dia[i]
     [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, False)
