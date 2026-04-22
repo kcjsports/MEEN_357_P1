@@ -20,7 +20,7 @@ import sys
 planet = define_planet()
 edl_system = define_edl_system()
 mission_events = define_mission_events()
-edl_system = define_chassis(edl_system,'carbon')
+edl_system = define_chassis(edl_system,'steel')
 edl_system = define_motor(edl_system,'base')
 edl_system = define_batt_pack(edl_system,'PbAcid-1', 10)
 tmax = 5000
@@ -121,9 +121,9 @@ res = minimize(obj_f, x0, method='trust-constr', constraints=nonlinear_constrain
 
 ###############################################################################
 # call the differential evolution optimizer ----------------------------------#
-# popsize=2 # define the population size
-# maxiter=1 # define the maximum number of iterations
-# res = differential_evolution(obj_f, bounds=bounds, constraints=nonlinear_constraint, popsize=popsize, maxiter=maxiter, disp=True, polish = False) 
+popsize=2 # define the population size
+maxiter=1 # define the maximum number of iterations
+res = differential_evolution(obj_f, bounds=bounds, constraints=nonlinear_constraint, popsize=popsize, maxiter=maxiter, disp=True, polish = False) 
 # end call the differential evolution optimizer ------------------------------#
 ###############################################################################
 
